@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Donjon utilities</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="//cdn.muicss.com/mui-0.1.18/css/mui.min.css" rel="stylesheet" type="text/css" />
+		<script src="//cdn.muicss.com/mui-0.1.18/js/mui.min.js"></script>
+		<link rel="stylesheet" href="app/main.css">
+	</head>
+	<body>
+		<div class="login-wrapper overlay centerer">
+			<form class="centered popin mui-panel" id="login" action="#">
+				<legend>Login</legend>
+				<div class="broadcast" id="login-msg"></div>
+				<div class="mui-form-group">
+					<input id="room" type="text" class="mui-form-control" required>
+					<label>Room name</label>
+				</div>
+				<div class="mui-form-group">
+					<input id="user" type="text" class="mui-form-control" required>
+					<label>Player name</label>
+				</div>
+				<button id="join" class="mui-btn mui-btn-raised mui-btn-primary mui-pull-right">Join</button>
+				<button id="create" class="mui-btn mui-btn-flat mui-btn-default mui-pull-left">Create</button>
+			</form>
+		</div>
+
+		<div class="room-wrapper">
+			<header class="mui-clearfix">
+				<h2 id="room-name" class="mui-pull-left mui-text-white">Donjon</h2>
+				<button id="logout" class="mui-btn mui-btn-flat mui-btn-default mui-pull-right">Logout</button>
+			</header>
+			<section class="middle">
+				<aside>
+					<ul id="users">
+					
+					</ul>
+				</aside>
+				<div id="content">
+					<ul id="messages">
+						
+					</ul>
+				</div>
+				<footer>
+					<form id="chat" action="#">
+						<button class="mui-btn mui-btn-primary mui-btn-raised">Send</button>
+						<div class="left-message">
+							<input id="message" class="mui-form-control" placeholder="Type message here..." autocomplete="off" />
+						</div>
+					</form>
+				</footer>
+			</section>
+		</div>
+
+		<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="app/plugins.js"></script>
+		<script src="app/main.js"></script>
+	</body>
+</html>

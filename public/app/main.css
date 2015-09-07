@@ -1,0 +1,234 @@
+* {
+  box-sizing: border-box;
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+.broadcast.error {
+  font-size: 12px;
+  transition: all 0.2s ease-in-out;
+  padding: 8px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 2px;
+  text-align: center;
+  background: #fde1df;
+  color: #f44336;
+  overflow: hidden;
+}
+.login-wrapper form .mui-btn {
+  width: 120px;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+}
+.overlay .popin {
+  width: 400px;
+  padding: 50px;
+}
+.song {
+  cursor: pointer;
+}
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 20px;
+  background: #111;
+  z-index: 1;
+}
+header h2 {
+  margin: 0;
+}
+header .mui-btn-default.mui-btn-flat.mui-btn {
+  margin: 0;
+  color: #999;
+}
+header .mui-btn-default.mui-btn-flat.mui-btn:hover,
+header .mui-btn-default.mui-btn-flat.mui-btn:focus {
+  background: #444;
+}
+section.middle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 60px 0;
+}
+section.middle aside {
+  width: 25%;
+  height: 100%;
+  float: left;
+}
+#content {
+  float: left;
+  position: relative;
+  height: 100%;
+  width: 75%;
+  overflow-y: scroll;
+  padding: 20px;
+}
+#users {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  background: #e5e5e5;
+}
+#users .user {
+  padding: 15px 20px;
+  border-bottom: 1px #f5f5f5 solid;
+}
+#users .user.admin {
+  color: #2196F3;
+}
+footer {
+  padding: 12px 20px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #f5f5f5;
+  z-index: 1;
+}
+footer #chat .left-message {
+  display: block;
+  margin-right: 120px;
+}
+footer #chat input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+}
+footer #chat button {
+  float: right;
+  margin: 0;
+  width: 100px;
+}
+#messages {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#messages .message {
+  position: relative;
+  padding: 10px 15px;
+  margin: 16px 40% 16px 0;
+}
+#messages .message.me {
+  margin-right: 0;
+  margin-left: 40%;
+  background: #f5f5f5;
+}
+#messages .message.me:after,
+#messages .message.me:before {
+  left: 90%;
+}
+#messages .message.me:after {
+  border-color: rgba(245, 245, 245, 0);
+  border-top-color: #f5f5f5;
+}
+#messages .message.admin {
+  color: #fff;
+  background: #2196F3;
+}
+#messages .message.admin:after {
+  border-color: rgba(245, 245, 245, 0);
+  border-top-color: #2196F3;
+}
+#messages .message .user {
+  display: block;
+  font-weight: bold;
+}
+#messages .message:after,
+#messages .message:before {
+  top: 100%;
+  left: 10%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+#messages .message:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-top-color: #ffffff;
+  border-width: 10px;
+  margin-left: -10px;
+}
+#messages .message:before {
+  border-color: rgba(225, 225, 225, 0);
+  border-top-color: #E1E1E1;
+  border-width: 13px;
+  margin-left: -13px;
+}
+#messages .diceroll {
+  margin: 50px auto;
+  width: 180px;
+  padding: 30px;
+  text-align: center;
+}
+#messages .diceroll.me {
+  background: #f5f5f5;
+}
+#messages .diceroll.admin {
+  background: #2196F3;
+}
+#messages .diceroll.admin .user,
+#messages .diceroll.admin .dice-original,
+#messages .diceroll.admin .dice-total {
+  color: #fff;
+}
+#messages .diceroll.admin .dice-detail {
+  color: rgba(255, 255, 255, 0.8);
+}
+#messages .diceroll .user {
+  display: block;
+  font-weight: bold;
+}
+#messages .diceroll .dice-total {
+  display: block;
+}
+.admin-layout section.middle {
+  padding-top: 90px;
+}
+.admin-layout #music-player {
+  position: fixed;
+  top: 60px;
+  height: 30px;
+  width: 100%;
+  background: #666;
+  color: #fff;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+}
+.centerer {
+  text-align: center;
+  white-space: nowrap;
+}
+.centerer:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -0.25em;
+}
+.centered {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+  white-space: normal;
+  width: 300px;
+}
