@@ -91,7 +91,7 @@ section.middle aside {
   border-bottom: 1px #f5f5f5 solid;
 }
 #users .user.admin {
-  color: #2196F3;
+  color: #2196f3;
 }
 footer {
   padding: 12px 20px;
@@ -140,11 +140,11 @@ footer #chat button {
 }
 #messages .message.admin {
   color: #fff;
-  background: #2196F3;
+  background: #2196f3;
 }
 #messages .message.admin:after {
   border-color: rgba(245, 245, 245, 0);
-  border-top-color: #2196F3;
+  border-top-color: #2196f3;
 }
 #messages .message .user {
   display: block;
@@ -183,7 +183,7 @@ footer #chat button {
   background: #f5f5f5;
 }
 #messages .diceroll.admin {
-  background: #2196F3;
+  background: #2196f3;
 }
 #messages .diceroll.admin .user,
 #messages .diceroll.admin .dice-original,
@@ -213,6 +213,12 @@ footer #chat button {
   text-align: center;
   line-height: 30px;
   cursor: pointer;
+}
+.music-selector li {
+  cursor: pointer;
+}
+.music-selector li:hover {
+  color: #2196f3;
 }
 .centerer {
   text-align: center;

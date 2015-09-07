@@ -29,7 +29,7 @@
 		}
 
 		// Is admin
-		if(user.admin){
+		if(name.admin){
 			$("body").addClass('admin-layout');
 			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
 
@@ -40,12 +40,10 @@
 
 		// users
 		socket.on('user login', function(data){
-			console.log("login : "+data);
 			showUser(data);
 		});
 
 		socket.on('user logout', function(data){
-			console.log("logout : "+data);
 			removeUser(data);
 		});
 		
@@ -191,7 +189,7 @@
 			if(data.user.admin) c += ' admin';
 
 			$('#messages').append($('<li id="msg-'+messages.length+'" class="message mui-panel'+c+'">').html(
-				'<span class="user">'+data.user+':</span> '+
+				'<span class="user">'+data.user.name+':</span> '+
 				'<span class="text">'+data.message+'</span>'
 			));
 
@@ -213,8 +211,7 @@
 	function showMusicList(){
 
 		$.post('music/list.php', function(data){
-			console.log(data.length);
-			
+
 			var musiclist = '';
 
 			for(var i = 0; i < data.length; i++){

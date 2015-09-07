@@ -1,6 +1,7 @@
 * { box-sizing: border-box; }
 
 @error: #F44336;
+@color: #2196F3;
 
 
 
@@ -123,7 +124,7 @@ section.middle{
 		border-bottom: 1px #f5f5f5 solid;
 
 		&.admin{
-			color: #2196F3;
+			color: @color;
 		}
 	}
 }
@@ -186,10 +187,10 @@ footer{
 
 		&.admin{
 			color: #fff;
-			background: #2196F3;
+			background: @color;
 			&:after {
 				border-color: rgba(245, 245, 245, 0);
-				border-top-color: #2196F3;
+				border-top-color: @color;
 			}
 		}
 
@@ -234,7 +235,7 @@ footer{
 		}
 
 		&.admin{
-			background: #2196F3;
+			background: @color;
 			.user, .dice-original, .dice-total{
 				color: #fff;
 			}
@@ -277,6 +278,15 @@ footer{
 		text-align: center;
 		line-height: 30px;
 		cursor: pointer;
+	}
+}
+
+.music-selector{
+	li{
+		cursor: pointer;
+		&:hover{
+			color: @color;
+		}
 	}
 }
 
