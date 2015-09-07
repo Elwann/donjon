@@ -3,31 +3,42 @@ var io = require('socket.io').listen(3000)
 
 var rooms = {};
 
+function User(name, admin){
+	this.name = name;
+	this.admin = admin || false;
+	this.connected = true;
+}
+
 function Room(name, admin){
 	this.name = name;
 	this.admin = admin;
 	this.users = [admin];
 	this.messages = [];
 
-	console.log("Create room "+name+" by "+admin);
+	console.log("Create room "+name+" by "+admin.name);
 }
 
-Room.prototype.isAdmin = function(user) {
-	return (user == this.admin);
+Room.prototype.isAdmin = function(name) {
+	return (name == this.admin.name);
 };
 
-Room.prototype.hasUser = function(user) {
-	return (this.users.indexOf(user) != -1);
+Room.prototype.hasUserByName = function(name) {
+	for (var i = this.users.length - 1; i >= 0; i--) {
+		if(this.users[i].name.toLowerCase() == name.toLowerCase())
+			return true;
+	}
+
+	return false;
 };
 
 Room.prototype.addUser = function(user) {
-	console.log("Add user "+user+" from room "+this.name);
+	console.log("Add user "+user.name+" from room "+this.name);
 	this.users.push(user);
 };
 
 Room.prototype.removeUser = function(user) {
-	console.log("Remove user "+user+" from room "+this.name);
-	if(this.hasUser(user)) this.users.splice(this.users.indexOf(user), 1);
+	console.log("Remove user "+user.name+" from room "+this.name);
+	if(this.hasUserByName(user.name)) this.users.splice(this.users.indexOf(user), 1);
 };
 
 Room.prototype.addMessage = function(message){
@@ -47,7 +58,6 @@ io.on('connection', function(socket){
 
 		var message = {
 			user: user,
-			admin: rooms[room].isAdmin(user),
 			message: msg
 		};
 
@@ -74,7 +84,7 @@ io.on('connection', function(socket){
 		
 		rooms[room].addMessage(message);
 
-		console.log(user+' to '+room+': '+msg);
+		console.log(user.name+' to '+room+': '+msg);
 		io.to(room).emit('chat', message);
 	});
 
@@ -82,12 +92,23 @@ io.on('connection', function(socket){
 		if(!room || !user)
 			return;
 
-		if(!rooms[room].isAdmin(user))
+		if(!user.admin)
 			return;
 
 		console.log('Play audio "'+song+'" in room '+room);
 		io.to(room).emit('music', song);
 	});
+
+	socket.on('music volume', function(volume){
+		if(!room || !user)
+			return;
+
+		if(!user.admin)
+			return;
+
+		console.log('Volume audio "'+volume+'" in room '+room);
+		io.to(room).emit('music volume', volume);
+	})
 
 	socket.on('room join', function(data){
 		console.log('room join');
@@ -102,7 +123,7 @@ io.on('connection', function(socket){
 		}
 
 		// Si l'user existe, on exit
-		if(rooms[data.room].hasUser(data.user)){
+		if(rooms[data.room].hasUserByName(data.user)){
 			socket.emit('login', { 
 				succes: false, 
 				error: 'User '+data.user+' exist. <br>Please use another name.'
@@ -111,24 +132,25 @@ io.on('connection', function(socket){
 		}
 
 		// Si tout est OK
+
 		// On enregiste les valeurs
 		room = data.room;
-		user = data.user;
+		user = new User(data.user, rooms[room].isAdmin(data.user));
 		// On s'ajoute a la room
 		rooms[room].addUser(user);
 
 		// On ajoute la socket a sa room
 		socket.join(room);
 
+		// TODO: Prévenir les autres de la connection
+		io.to(room).emit('user login', user);
+
 		// On notifie que la connection s'est bien passé
 		socket.emit('login', { 
 			succes: true,
 			room: rooms[room],
-			user: user,
-			admin: rooms[room].isAdmin(user)
+			user: user
 		});
-
-		// TODO: Prévenir les autres de la connection
 	});
 
 	socket.on('room create', function(data){
@@ -144,24 +166,25 @@ io.on('connection', function(socket){
 		}
 
 		// Si tout est OK
+
 		// On enregiste les valeurs
 		room = data.room;
-		user = data.user;
+		user = new User(data.user, true);
 		// On s'ajoute a la room
 		rooms[room] = new Room(room, user);
 
 		// On ajoute la socket a sa room
 		socket.join(room);
 
+		// TODO: Prévenir les autres de la connection
+		io.to(room).emit('user login', user);
+
 		// On notifie que la connection s'est bien passé
 		socket.emit('login', { 
 			succes: true,
 			room: rooms[room],
-			user: user,
-			admin: rooms[room].isAdmin(user)
+			user: user
 		});
-
-		// TODO: Prévenir les autres de la connection
 	});
 
 	socket.on('disconnect', function(){
@@ -171,7 +194,8 @@ io.on('connection', function(socket){
 		}
 		
 		rooms[room].removeUser(user);
-		console.log('user '+user+' disconnected from room '+room);
+		io.to(room).emit('user logout', user);
+		console.log('user '+user.name+' disconnected from room '+room);
 	});
 });
 
