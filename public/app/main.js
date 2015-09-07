@@ -180,7 +180,7 @@
 			return;
 		}
 
-		if(messages.length > 0 && messages[messages.length-1].user.name == data.user.name){
+		if(messages.length > 0 && messages[messages.length-1].user.name == data.user.name && !messages[messages.length-1].command){
 			messages[messages.length-1].message += "<br>"+data.message;
 			$('#msg-'+(messages.length-1)).find('.text').append("<br>"+data.message);
 		} else {
