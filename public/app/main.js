@@ -140,11 +140,10 @@
 
 	function showUser(user)
 	{
-		var a = "";
-		if(user.admin) 
-			a = " admin";
-
-		$("#users").append('<li class="user'+a+'" id="user-'+user.name+'">'+user.name+'</li>');
+		var c = "user";
+		if(user.admin) c += " admin";
+		if(user.name == name.name) c += " me";
+		$("#users").append('<li class="'+c+'" id="user-'+user.name+'">'+user.name+'</li>');
 	}
 
 	function removeUser(user)
