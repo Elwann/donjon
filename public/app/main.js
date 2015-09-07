@@ -67,16 +67,17 @@
 		});
 
 		// Is admin
+
+		$("#volume").click(function(e){
+			volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
+		});
+		
 		if(name.admin){
 			$("body").addClass('admin-layout');
 			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
 
 			$("#music-player").click(function(){
 				showMusicList();
-			});
-
-			$("#volume").click(function(e){
-				volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
 			});
 
 			$("#play").click(function(){
