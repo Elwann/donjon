@@ -44,19 +44,24 @@ header {
   left: 0;
   width: 100%;
   padding: 12px 20px;
+  color: #fff;
   background: #111;
   z-index: 1;
 }
 header h2 {
   margin: 0;
 }
-header .mui-btn-default.mui-btn-flat.mui-btn {
-  margin: 0;
+header .fa {
+  font-size: 20px;
+  padding: 8px;
+}
+#logout {
+  cursor: pointer;
   color: #999;
 }
-header .mui-btn-default.mui-btn-flat.mui-btn:hover,
-header .mui-btn-default.mui-btn-flat.mui-btn:focus {
-  background: #444;
+#logout:hover,
+#logout:focus {
+  color: #fff;
 }
 section.middle {
   position: fixed;
@@ -203,6 +208,42 @@ footer #chat button {
 #messages .diceroll .dice-total {
   display: block;
 }
+.volume-controls {
+  float: left;
+  margin: 0 16px 0 8px;
+}
+#play {
+  display: none;
+  float: left;
+  font-size: 16px;
+  line-height: 20px;
+  cursor: pointer;
+  color: #fff;
+}
+#play:hover {
+  color: #2196f3;
+}
+.audio-controls {
+  float: right;
+}
+.audio-volume {
+  position: relative;
+  display: block;
+  float: right;
+  width: 30px;
+  height: 6px;
+  margin: 15px 0;
+  line-height: 30px;
+  vertical-align: top;
+  background: #666;
+  cursor: pointer;
+}
+.audio-volume-bar {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #2196f3;
+}
 .admin-layout section.middle {
   padding-top: 90px;
 }
@@ -216,6 +257,9 @@ footer #chat button {
   text-align: center;
   line-height: 30px;
   cursor: pointer;
+}
+.admin-layout #play {
+  display: block;
 }
 .music-selector li {
   cursor: pointer;

@@ -77,17 +77,23 @@ header{
 	top: 0; left: 0;
 	width: 100%;
 	padding: 12px 20px;
+	color: #fff;
 	background: #111;
 	z-index: 1;
 	h2{
 		margin: 0;
 	}
-	.mui-btn-default.mui-btn-flat.mui-btn{
-		margin: 0;
-		color: #999;
-		&:hover, &:focus{
-			background: #444;
-		}
+	.fa{
+		font-size: 20px;
+		padding: 8px;
+	}
+}
+
+#logout{
+	cursor: pointer;
+	color: #999;
+	&:hover, &:focus{
+		color: #fff;
 	}
 }
 
@@ -261,6 +267,50 @@ footer{
 }
 
 
+//
+// Audio
+//
+
+.volume-controls{
+	float: left;
+	margin: 0 16px 0 8px;
+}
+
+#play{
+	display: none;
+	float: left;
+	font-size: 16px;
+	line-height: 20px;
+	cursor: pointer;
+	color: #fff;
+	&:hover{
+		color: @color;
+	}
+}
+
+.audio-controls{
+	float: right;
+}
+
+.audio-volume{
+	position: relative;
+	display: block;
+	float: right;
+	width: 30px;
+	height: 6px;
+	margin: 15px 0;
+	line-height: 30px;
+	vertical-align: top;
+	background: #666;
+	cursor: pointer;
+}
+
+.audio-volume-bar{
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: @color;
+}
 
 
 //
@@ -282,6 +332,10 @@ footer{
 		text-align: center;
 		line-height: 30px;
 		cursor: pointer;
+	}
+
+	#play{
+		display: block;
 	}
 }
 

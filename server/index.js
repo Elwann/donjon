@@ -1,4 +1,3 @@
-// Listen on port 1080 (arbitrarily chosen here and in index.html
 var io = require('socket.io').listen(3000)
 
 var rooms = {};
@@ -97,6 +96,17 @@ io.on('connection', function(socket){
 
 		console.log('Play audio "'+song+'" in room '+room);
 		io.to(room).emit('music', song);
+	});
+
+	socket.on('music pause', function(){
+		if(!room || !user)
+			return;
+
+		if(!user.admin)
+			return;
+
+		console.log('Pause audio in room '+room);
+		io.to(room).emit('music pause');
 	});
 
 	socket.on('music volume', function(volume){

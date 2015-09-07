@@ -5,6 +5,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 		<link href="//cdn.muicss.com/mui-0.1.18/css/mui.min.css" rel="stylesheet" type="text/css" />
 		<script src="//cdn.muicss.com/mui-0.1.18/js/mui.min.js"></script>
 		<link rel="stylesheet" href="app/main.css">
@@ -30,7 +31,16 @@
 		<div class="room-wrapper">
 			<header class="mui-clearfix">
 				<h2 id="room-name" class="mui-pull-left mui-text-white">Donjon</h2>
-				<button id="logout" class="mui-btn mui-btn-flat mui-btn-default mui-pull-right">Logout</button>
+				<i id="logout" class="fa fa-power-off mui-pull-right"></i>
+				<div class="audio-controls">
+					<i id="play" class="fa fa-play"></i>
+					<div class="volume-controls">
+						<i class="fa fa-volume-up"></i>
+						<div id="volume" class="audio-volume">
+							<div class="audio-volume-bar"></div>
+						</div>
+					</div>
+				</div>
 			</header>
 			<section class="middle">
 				<aside>

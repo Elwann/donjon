@@ -28,16 +28,6 @@
 			addMessage(room.messages[i]);
 		}
 
-		// Is admin
-		if(name.admin){
-			$("body").addClass('admin-layout');
-			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
-
-			$("#music-player").click(function(){
-				showMusicList();
-			});
-		}
-
 		// users
 		socket.on('user login', function(data){
 			showUser(data);
@@ -75,6 +65,29 @@
 		socket.on('music volume', function(data){
 			volumeMusic(data);
 		});
+
+		// Is admin
+		if(name.admin){
+			$("body").addClass('admin-layout');
+			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
+
+			$("#music-player").click(function(){
+				showMusicList();
+			});
+
+			$("#volume").click(function(e){
+				volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
+			});
+
+			$("#play").click(function(){
+				var $this = $(this);
+				if($this.hasClass('fa-play')){
+					showMusicList();
+				} else {
+					socket.emit('music pause');
+				}
+			});
+		}
 	}
 
 	function joinRoom(){
@@ -206,6 +219,7 @@
 	//
 
 	var audio = new Audio();
+	audio.volume = 1;
 
 	function showMusicList(){
 
@@ -229,25 +243,34 @@
 		});
 	}
 
-	function playMusic(song){
+	function playMusic(song)
+	{
+		$("#play")
+			.removeClass("fa-play")
+			.addClass("fa-pause");
 		audio.src = song.url;
-		//volumeMusic(song.volume);
 		audio.loop = true;
 		audio.play();
 	}
 
-	function pauseMusic(){
+	function pauseMusic()
+	{
+		$("#play")
+			.removeClass("fa-pause")
+			.addClass("fa-play");
 		audio.pause();
 	}
 
-	function volumeMusic(volume){
+	function volumeMusic(volume)
+	{
+		$('#volume').find('.audio-volume-bar').css('width', (volume*100)+'%');
 		audio.volume = Math.min(Math.max(volume, 0), 1);
 	}
 
 	$('body').on('click', '.song', function(){
 		$('.music-selector').fadeOut(300);
 
-		if(user.admin){
+		if(name.admin){
 			var song = {
 				url: $(this).attr('data-song'),
 				volume: audio.volume
