@@ -65,7 +65,7 @@
 
 		// Music
 		socket.on('music', function(data){
-			Music.play(data);
+			Music.load(data);
 		});
 
 		socket.on('music pause', function(){
@@ -243,15 +243,21 @@
 
 	$('body').on('click', '.song', function(){
 		$('.music-selector').fadeOut(300);
-
 		if(name.admin){
-			var song = {
-				url: $(this).attr('data-song')
-			}
-
-			socket.emit('music', song);
+			socket.emit('music', [$(this).attr('data-song')]);
 		}
-		
+	});
+
+	$('body').on('click', '.playlist', function(e){
+		$('.music-selector').fadeOut(300);
+		if(name.admin){
+			var songs = [];
+			$(this).next('ul').find('.song').each(function(){
+				songs.push($(this).attr('data-song'));
+			});
+
+			socket.emit('music', songs);
+		}
 	});
 
 })();

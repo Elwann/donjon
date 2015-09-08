@@ -34,13 +34,26 @@ var Music = {
 			);
 		});
 	},
-	play: function(song)
+	load: function(data)
 	{
+		Music.playlist = data;
+		Music.current = 0;
+		Music.play();
+	},
+	next: function(){
+		++Music.current;
+		if(Music.current >= Music.playlist.length)
+			Music.current = 0;
+
+		Music.play();
+	},
+	play: function(){
 		$("#play")
 			.removeClass("fa-play")
 			.addClass("fa-pause");
-		Music.player.src = song.url;
-		Music.player.loop = true;
+
+		Music.player.src = Music.playlist[Music.current];
+		Music.player.loop = false;
 		Music.player.play();
 	},
 	pause: function()
@@ -70,6 +83,11 @@ $("#volume").mousedown(function(e){
 
 $(window).mouseup(function(){
 	$(window).off('mousemove.volume');
-})
+});
+
+$(Music.player).on('ended', function(e){
+	Music.pause();
+	Music.next();
+});
 
 Music.player.volume = 1;
