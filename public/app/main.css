@@ -35,8 +35,11 @@ html {
   max-width: 400px;
   padding: 50px;
 }
-.song {
+.link {
   cursor: pointer;
+}
+.link:hover {
+  color: #2196f3;
 }
 header {
   position: fixed;
@@ -312,7 +315,7 @@ footer #chat button {
   position: relative;
   display: block;
   float: right;
-  width: 30px;
+  width: 50px;
   height: 6px;
   margin: 15px 0;
   line-height: 30px;
@@ -342,12 +345,6 @@ footer #chat button {
 }
 .admin-layout #play {
   display: block;
-}
-.music-selector li {
-  cursor: pointer;
-}
-.music-selector li:hover {
-  color: #2196f3;
 }
 .centerer {
   text-align: center;

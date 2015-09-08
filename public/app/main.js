@@ -65,20 +65,15 @@
 
 		// Music
 		socket.on('music', function(data){
-			playMusic(data);
+			Music.play(data);
 		});
 
 		socket.on('music pause', function(){
-			pauseMusic();
+			Music.pause();
 		});
 
 		socket.on('music volume', function(data){
-			volumeMusic(data);
-		});
-
-		$("#volume").mousedown(function(e){
-			e.preventDefault();
-			volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
+			Music.volume(data);
 		});
 
 		// Is admin
@@ -88,14 +83,14 @@
 
 			$("#music-player").click(function(e){
 				e.preventDefault();
-				showMusicList();
+				Music.showList();
 			});
 
 			$("#play").click(function(e){
 				e.preventDefault();
 				var $this = $(this);
 				if($this.hasClass('fa-play')){
-					showMusicList();
+					Music.showList();
 				} else {
 					socket.emit('music pause');
 				}
@@ -242,67 +237,16 @@
 	}
 
 
-
 	//
 	// Music player
 	//
-
-	var audio = new Audio();
-	audio.volume = 1;
-
-	function showMusicList(){
-
-		$.post('music/list.php', function(data){
-
-			var musiclist = '';
-
-			for(var i = 0; i < data.length; i++){
-				musiclist += '<li class="song" data-song="music/'+data[i]+'">'+data[i]+'</li>';
-			}
-
-			$("body").append(
-				'<div class="music-selector overlay centerer">'+
-					'<div class="popin mui-panel centered">'+
-						'<ul>'+
-							musiclist+
-						'</ul>'+
-					'</div>'+
-				'</div>'
-			);
-		});
-	}
-
-	function playMusic(song)
-	{
-		$("#play")
-			.removeClass("fa-play")
-			.addClass("fa-pause");
-		audio.src = song.url;
-		audio.loop = true;
-		audio.play();
-	}
-
-	function pauseMusic()
-	{
-		$("#play")
-			.removeClass("fa-pause")
-			.addClass("fa-play");
-		audio.pause();
-	}
-
-	function volumeMusic(volume)
-	{
-		$('#volume').find('.audio-volume-bar').css('width', (volume*100)+'%');
-		audio.volume = Math.min(Math.max(volume, 0), 1);
-	}
 
 	$('body').on('click', '.song', function(){
 		$('.music-selector').fadeOut(300);
 
 		if(name.admin){
 			var song = {
-				url: $(this).attr('data-song'),
-				volume: audio.volume
+				url: $(this).attr('data-song')
 			}
 
 			socket.emit('music', song);
