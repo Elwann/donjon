@@ -1,6 +1,7 @@
 var Music = {
 	playlist: [],
 	current: 0,
+	vol: 0,
 	player: new Audio(),
 	crawlSongs: function(playlist){
 		var musiclist = '<strong class="playlist link">'+playlist.title+'</strong>';
@@ -66,8 +67,28 @@ var Music = {
 	volume: function(volume)
 	{
 		volume = Math.min(Math.max(volume, 0), 1);
+
+		var c = "fa ";
+		if(volume == 0){
+			c += "fa-volume-off";
+		} else if(volume < 0.4){
+			c += "fa-volume-down";
+		} else {
+			c += "fa-volume-up";
+		}
+
+		$('#mute')[0].className = c;
+		
 		$('#volume').find('.audio-volume-bar').css('width', (volume*100)+'%');
 		Music.player.volume = volume;
+	},
+	mute: function(){
+		Music.vol = Music.player.volume;
+		Music.volume(0);
+	},
+	unmute: function(){
+		Music.volume(Music.vol);
+		Music.vol = 0;
 	}
 };
 
@@ -79,6 +100,14 @@ $("#volume").mousedown(function(e){
 		var offset = e.clientX - vol.offset().left;
 		Music.volume(Math.round(offset/vol.width()*100)/100);
 	});
+});
+
+$("#mute").click(function(){
+	if(Music.vol == 0){
+		Music.mute();
+	} else {
+		Music.unmute();
+	}
 });
 
 $(window).mouseup(function(){

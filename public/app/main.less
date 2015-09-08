@@ -369,6 +369,15 @@ footer{
 	}
 }
 
+#mute{
+	width: 34px;
+	cursor: pointer;
+	color: #fff;
+	&:hover{
+		color: @color;
+	}
+}
+
 .audio-controls{
 	float: right;
 }
@@ -378,12 +387,18 @@ footer{
 	display: block;
 	float: right;
 	width: 50px;
-	height: 6px;
-	margin: 15px 0;
+	height: 36px;
+	padding: 15px 0;
 	line-height: 30px;
 	vertical-align: top;
-	background: #666;
 	cursor: pointer;
+}
+
+.audio-volume-empty{
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: #666;
 }
 
 .audio-volume-bar{
