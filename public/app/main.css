@@ -72,15 +72,14 @@ section.middle {
   padding: 60px 0;
 }
 section.middle aside {
-  width: 25%;
+  width: 240px;
   height: 100%;
   float: left;
 }
 #content {
-  float: left;
   position: relative;
   height: 100%;
-  width: 75%;
+  margin-left: 240px;
   overflow-y: scroll;
   padding: 20px;
 }
@@ -245,6 +244,18 @@ footer #chat button {
 .dices-3 + #chat {
   margin-left: 150px;
 }
+.dices-4 {
+  width: 195px;
+}
+.dices-4 + #chat {
+  margin-left: 195px;
+}
+.dices-5 {
+  width: 240px;
+}
+.dices-5 + #chat {
+  margin-left: 240px;
+}
 .dice {
   float: left;
   width: 40px;
@@ -364,5 +375,29 @@ footer #chat button {
   .login-wrapper form .mui-btn {
     width: 50%;
     margin: 0;
+  }
+}
+@media screen and (max-width: 1200px) {
+  section.middle aside {
+    width: 195px;
+  }
+  #content {
+    margin-left: 195px;
+  }
+}
+@media screen and (max-width: 935px) {
+  section.middle aside {
+    width: 150px;
+  }
+  #content {
+    margin-left: 150px;
+  }
+}
+@media screen and (max-width: 670px) {
+  section.middle aside {
+    width: 25%;
+  }
+  #content {
+    margin-left: 25%;
   }
 }

@@ -39,8 +39,9 @@ var Dices = {
 	},
 	*/
 	// Show dices
-	show: function(number){
+	show: function(){
 		Dices.sort();
+		var number = Dices.number();
 		var htmlDice = $("#dices");
 		var length = (Dices.dices.length > number) ? number : Dices.dices.length;
 		htmlDice.html("");
@@ -74,6 +75,13 @@ var Dices = {
 		if(!exist)
 			Dices.dices.push({type: dice, rolls: 1});
 
-		Dices.show(3);
+		Dices.show();
+	},
+	number: function(){
+		return Math.max(Math.min(Math.round(($(window).width() * 0.15) / 40), 5), 1);
 	}
 }
+
+$(window).resize(function(){
+	Dices.show();
+});
