@@ -298,6 +298,16 @@ footer #chat button {
 .music-selector ul {
   padding-left: 20px;
 }
+.music-selector .popin {
+  position: relative;
+}
+.music-selector-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 20px;
+  padding: 10px;
+}
 .volume-controls {
   float: left;
   margin: 0 16px 0 8px;

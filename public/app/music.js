@@ -19,16 +19,10 @@ var Music = {
 	},
 	showList: function(){
 		$.post('music/list.php', function(data){
-
-			//var musiclist = '';
-
-			//for(var i = 0; i < data.length; i++){
-			//	musiclist += '<li class="song" data-song="music/'+data[i]+'">'+data[i]+'</li>';
-			//}
-
 			$("body").append(
 				'<div class="music-selector overlay centerer">'+
 					'<div class="popin mui-panel centered">'+
+						'<i class="music-selector-close fa fa-times link"></i>'+
 						Music.crawlSongs(data)+
 					'</div>'+
 				'</div>'
@@ -95,7 +89,7 @@ var Music = {
 $("#volume").mousedown(function(e){
 	e.preventDefault();
 	Music.volume(Math.round(e.offsetX/$(this).width()*100)/100);
-	$(window).on('mousemove.volume', function(e){
+	$('body').on('mousemove.volume', function(e){
 		var vol = $("#volume");
 		var offset = e.clientX - vol.offset().left;
 		Music.volume(Math.round(offset/vol.width()*100)/100);
@@ -112,6 +106,10 @@ $("#mute").click(function(){
 
 $(window).mouseup(function(){
 	$(window).off('mousemove.volume');
+});
+
+$('body').on("click", ".music-selector-close", function(){
+	$('.music-selector').fadeOut(300);
 });
 
 $(Music.player).on('ended', function(e){

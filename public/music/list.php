@@ -1,7 +1,4 @@
 <?php
-//$dirlist = array();
-$dirlist = crawlMusicList('Music', '.');
-
 function crawlMusicList($title, $path)
 {
 	$list = array();
@@ -21,11 +18,12 @@ function crawlMusicList($title, $path)
 
 				if (!is_dir($url))
 				{
-					array_push($list, array("title" => str_replace('.mp3', '', $entry), "type" => "song", "url" => $url));
+					if(preg_match('/.mp3/', $entry)){
+						array_push($list, array("title" => str_replace('.mp3', '', $entry), "type" => "song", "url" => $url));
+					}
 				}
 				else
 				{
-					//var_dump($entry);
 					array_push($list, crawlMusicList($entry, $url));
 				}
 			}
@@ -38,4 +36,4 @@ function crawlMusicList($title, $path)
 }
 
 header('Content-Type: application/json');
-echo json_encode($dirlist);
+echo json_encode(crawlMusicList('Music', '.'));
