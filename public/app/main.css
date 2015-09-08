@@ -156,6 +156,14 @@ footer #chat button {
   border-color: rgba(245, 245, 245, 0);
   border-top-color: #2196f3;
 }
+#messages .message.error {
+  color: #f44336;
+  background: #fde1df;
+}
+#messages .message.error:after,
+#messages .message.error:before {
+  content: none;
+}
 #messages .message .user {
   display: block;
   font-weight: bold;

@@ -205,6 +205,14 @@ footer{
 			}
 		}
 
+		&.error{
+			color: @error;
+			background: lighten(@error, 35%);
+			&:after, &:before {
+				content: none;
+			}
+		}
+
 		.user{
 			display: block;
 			font-weight: bold;
@@ -227,6 +235,7 @@ footer{
 			border-width: 10px;
 			margin-left: -10px;
 		}
+
 		&:before {
 			border-color: rgba(225, 225, 225, 0);
 			border-top-color: #E1E1E1;

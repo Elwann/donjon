@@ -196,15 +196,28 @@
 				break;
 		}
 
+		var content = $("#content");
+		content.scrollTop(content[0].scrollHeight);
+
 		return true;
+	}
+
+	function showError(data){
+		$('#messages').append($('<li id="msg-'+messages.length+'" class="message error me">').html(data.message));
+		var content = $("#content");
+		content.scrollTop(content[0].scrollHeight);
+		return;
 	}
 
 	function addMessage(data){
 
+		if(data.error){
+			showError(data);
+			return;
+		}
+
 		if(data.command){
 			showCommand(data);
-			var content = $("#content");
-			content.scrollTop(content[0].scrollHeight);
 			return;
 		}
 

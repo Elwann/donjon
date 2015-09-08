@@ -67,23 +67,19 @@ io.on('connection', function(socket){
 			// On tente de l'executer
 			message = execCommand(command, message);
 			
-			if(message.message != ""){
+			if(message.error){
+				// Si la commande n'est pas reconnu, on l'indique
+				console.log(user.name+' to '+room+': command error');
+				socket.emit('chat', message);
+				return;
+			} else {
 				// Si c'est un commande
 				message["command"] = command;
-			} else {
-				// Si la commande n'est pas reconnu, on l'indique
-				socket.on('message', {
-					type: "warning",
-					message: "Unknown command"
-				});
-
-				return;
 			}
 		}
 		
-		rooms[room].addMessage(message);
-
 		console.log(user.name+' to '+room+': '+msg);
+		rooms[room].addMessage(message);
 		io.to(room).emit('chat', message);
 	});
 
@@ -214,6 +210,10 @@ function commandDice(message){
 	var raw = message.message;
 	var diceroll = message.message;
 
+	if(raw.indexOf('d') < 0) {
+		return chatError(message, "Not a valid dice");
+	}
+
 	function rollDice(match, p1, p2, offset, string){
 		p1 = p1 || 1;
 
@@ -245,7 +245,7 @@ function execCommand(command, message){
 
 	switch(command){
 		case "/roll": return commandDice(message); break;
-		default: ""
+		default: return chatError(message, "Unknown command");
 	}
 }
 
@@ -257,4 +257,10 @@ function testCommand(message){
 	var command = message.shift();
 
 	return command;
+}
+
+function chatError(message, error){
+	message.message = error; 
+	message["error"] = true; 
+	return message;
 }
