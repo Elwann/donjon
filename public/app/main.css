@@ -32,7 +32,7 @@ html {
   z-index: 1000;
 }
 .overlay .popin {
-  width: 400px;
+  max-width: 400px;
   padding: 50px;
 }
 .song {
@@ -354,5 +354,15 @@ footer #chat button {
   text-align: left;
   vertical-align: middle;
   white-space: normal;
-  width: 300px;
+  width: 100%;
+}
+@media screen and (max-width: 42em) {
+  .overlay .popin {
+    position: relative;
+    padding: 30px;
+  }
+  .login-wrapper form .mui-btn {
+    width: 50%;
+    margin: 0;
+  }
 }
