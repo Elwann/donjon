@@ -1,8 +1,8 @@
 (function(){
+
 	//
 	// Socket connection and online gestion
 	//
-
 
 	var url = Config.url || 'http://localhost:3000';
 	var socket = io(url);
@@ -27,6 +27,9 @@
 		for (i = 0, length = room.messages.length; i < length; i++) {
 			addMessage(room.messages[i]);
 		}
+
+		// Setup dices
+		//Dices.load(room.name+" dices");
 
 		// users
 		socket.on('user login', function(data){
@@ -53,6 +56,13 @@
 			addMessage(data);
 		});
 
+		// Dice
+		$(document).on("click", ".dice", function(e){
+			e.preventDefault();
+			var dice = $(this).html();
+			socket.emit('chat', "/roll "+dice);
+		});
+
 		// Music
 		socket.on('music', function(data){
 			playMusic(data);
@@ -66,21 +76,23 @@
 			volumeMusic(data);
 		});
 
-		// Is admin
-
-		$("#volume").click(function(e){
+		$("#volume").mousedown(function(e){
+			e.preventDefault();
 			volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
 		});
 
+		// Is admin
 		if(name.admin){
 			$("body").addClass('admin-layout');
 			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
 
-			$("#music-player").click(function(){
+			$("#music-player").click(function(e){
+				e.preventDefault();
 				showMusicList();
 			});
 
-			$("#play").click(function(){
+			$("#play").click(function(e){
+				e.preventDefault();
 				var $this = $(this);
 				if($this.hasClass('fa-play')){
 					showMusicList();
@@ -126,7 +138,7 @@
 		}
 
 		name = data.user;
-		Cookies.set('login', data.room.name+'|'+data.user.name, { expires: 7 });
+		Cookies.set('login', data.room.name+'|'+data.user.name, { expires: 356 });
 		setupRoom(data.room);
 	});
 
@@ -134,8 +146,10 @@
 	$("#join").click(joinRoom);
 	$("#create").click(createRoom);
 
-	$("#logout").click(function(){
+	$("#logout").click(function(e){
+		e.preventDefault();
 		Cookies.remove('login');
+		Dices.unload();
 		window.location.href = window.location.href; 
 	});
 
@@ -178,6 +192,7 @@
 				if(data.user.admin) c += ' admin';
 				$('#messages').append($('<li id="msg-'+messages.length+'" class="diceroll mui-panel'+c+'">').html('<span class="user">'+data.user.name+':</span> '+data.message));
 				messages.push(data);
+				if(data.user.name == name.name) Dices.roll(data.dice);
 				break;
 		}
 

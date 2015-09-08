@@ -65,7 +65,7 @@ io.on('connection', function(socket){
 		if(command != ""){
 
 			// On tente de l'executer
-			message.message = execCommand(command, msg);
+			message = execCommand(command, message);
 			
 			if(message.message != ""){
 				// Si c'est un commande
@@ -211,8 +211,8 @@ io.on('connection', function(socket){
 
 function commandDice(message){
 
-	var raw = message;
-	var diceroll = message;
+	var raw = message.message;
+	var diceroll = message.message;
 
 	function rollDice(match, p1, p2, offset, string){
 		p1 = p1 || 1;
@@ -234,11 +234,14 @@ function commandDice(message){
 	var diceroll = diceroll.replace(re, rollDice);
 	var total = diceroll;
 
-	return '<span class="dice-original">rolls '+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
+	message["dice"] = message.message;
+	message.message = '<span class="dice-original">rolls '+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
+
+	return message;
 }
 
 function execCommand(command, message){
-	message = message.replace(command+" ", "");
+	message.message = message.message.replace(command+" ", "");
 
 	switch(command){
 		case "/roll": return commandDice(message); break;

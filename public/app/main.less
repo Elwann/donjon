@@ -141,7 +141,7 @@ section.middle{
 
 
 footer{
-	padding: 12px 20px;
+	//padding: 12px 20px 12px 10px;
 	position: fixed;
 	bottom: 0;
 	width: 100%;
@@ -149,6 +149,7 @@ footer{
 	z-index: 1;
 	
 	#chat{
+		padding: 14px 20px;
 
 		.left-message{
 			display: block;
@@ -264,6 +265,61 @@ footer{
 			display: block;
 		}
 	}
+}
+
+@dicesize: 40px;
+
+#dices{
+	overflow: hidden;
+	float: left;
+	background: #444;
+	padding: 10px 5px 10px 10px;
+}
+
+.dices-0{
+	display: none;
+}
+
+.dices-1{
+	width: (@dicesize+5)*1 + 15;
+	&+#chat{
+		margin-left: (@dicesize+5)*1 + 15;
+	}
+}
+
+.dices-2{
+	width: (@dicesize+5)*2 + 15;
+	&+#chat{
+		margin-left: (@dicesize+5)*2 + 15
+	}
+}
+
+.dices-3{
+	width: (@dicesize+5)*3 + 15;
+	&+#chat{
+		margin-left: (@dicesize+5)*3 + 15;
+	}
+}
+
+.dice{
+	float: left;
+	width: @dicesize;
+	height: @dicesize;
+	line-height: @dicesize;
+	margin-right: 5px;
+	text-align: center;
+	font-weight: bold;
+	color: #fff;
+	background: #000;
+	cursor: pointer;
+	font-size: 10px;
+	&.d6{ background: url("icons/d6.svg") no-repeat center; }
+	&.d8{ background: url("icons/d8.svg") no-repeat center; }
+	&.d10{ background: url("icons/d10.svg") no-repeat center; }
+	&.d12{ background: url("icons/d12.svg") no-repeat center; }
+	&.d20{ background: url("icons/d20.svg") no-repeat center; }
+	&.d100{ background: url("icons/d10.svg") no-repeat center; }
+	&:hover{ color: @color; }
 }
 
 

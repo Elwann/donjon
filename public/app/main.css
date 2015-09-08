@@ -102,12 +102,14 @@ section.middle aside {
   background: #f5f5f5;
 }
 footer {
-  padding: 12px 20px;
   position: fixed;
   bottom: 0;
   width: 100%;
   background: #f5f5f5;
   z-index: 1;
+}
+footer #chat {
+  padding: 14px 20px;
 }
 footer #chat .left-message {
   display: block;
@@ -207,6 +209,67 @@ footer #chat button {
 }
 #messages .diceroll .dice-total {
   display: block;
+}
+#dices {
+  overflow: hidden;
+  float: left;
+  background: #444;
+  padding: 10px 5px 10px 10px;
+}
+.dices-0 {
+  display: none;
+}
+.dices-1 {
+  width: 60px;
+}
+.dices-1 + #chat {
+  margin-left: 60px;
+}
+.dices-2 {
+  width: 105px;
+}
+.dices-2 + #chat {
+  margin-left: 105px;
+}
+.dices-3 {
+  width: 150px;
+}
+.dices-3 + #chat {
+  margin-left: 150px;
+}
+.dice {
+  float: left;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  margin-right: 5px;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  background: #000;
+  cursor: pointer;
+  font-size: 10px;
+}
+.dice.d6 {
+  background: url("icons/d6.svg") no-repeat center;
+}
+.dice.d8 {
+  background: url("icons/d8.svg") no-repeat center;
+}
+.dice.d10 {
+  background: url("icons/d10.svg") no-repeat center;
+}
+.dice.d12 {
+  background: url("icons/d12.svg") no-repeat center;
+}
+.dice.d20 {
+  background: url("icons/d20.svg") no-repeat center;
+}
+.dice.d100 {
+  background: url("icons/d10.svg") no-repeat center;
+}
+.dice:hover {
+  color: #2196f3;
 }
 .volume-controls {
   float: left;
