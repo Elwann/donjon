@@ -3,8 +3,8 @@
 	// Socket connection and online gestion
 	//
 
-	//var url = 'http://151.80.247.32:3000';
-	var url = 'http://localhost:3000';
+
+	var url = Config.url || 'http://localhost:3000';
 	var socket = io(url);
 
 	var name;
@@ -71,7 +71,7 @@
 		$("#volume").click(function(e){
 			volumeMusic(Math.round(e.offsetX/$(this).width()*100)/100);
 		});
-		
+
 		if(name.admin){
 			$("body").addClass('admin-layout');
 			$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
