@@ -13,7 +13,7 @@ var Music = {
 				musiclist += '<li class="song link" data-song="music/'+playlist.songs[i].url+'">'+playlist.songs[i].title+'</li>';
 			}
 		}
-		musiclist += '<ul>';
+		musiclist += '</ul>';
 
 		return musiclist;
 	},

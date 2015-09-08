@@ -30,10 +30,12 @@ html {
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
   z-index: 1000;
+  overflow: auto;
 }
 .overlay .popin {
   max-width: 400px;
   padding: 50px;
+  margin: 20px;
 }
 .link {
   cursor: pointer;
@@ -292,6 +294,9 @@ footer #chat button {
 }
 .dice:hover {
   color: #2196f3;
+}
+.music-selector ul {
+  padding-left: 20px;
 }
 .volume-controls {
   float: left;
