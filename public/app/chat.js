@@ -97,5 +97,5 @@ Chat.prototype.init = function(messages)
 Chat.prototype.destroy = function()
 {
 	this.$chat.off(".chat");
-	//TODO removeListener socket
+	this.room.socket.removeAllListeners('chat');
 };

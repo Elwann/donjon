@@ -229,7 +229,9 @@ Music.prototype.destroy = function()
 	$(window).off('.music');
 	$(this.player).off('.music');
 
-	//TODO removeListener socket
+	this.room.socket.removeAllListeners('music');
+	this.room.socket.removeAllListeners('music pause');
+	this.room.socket.removeAllListeners('music volume');
 
 	this.$musicPlayer.remove();
 };

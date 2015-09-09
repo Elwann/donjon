@@ -46,6 +46,4 @@ Room.prototype.destroy = function()
 	this.chat.destroy();
 	this.users.destroy();
 	this.music.destroy();
-
-	//TODO removeListener socket
 };
