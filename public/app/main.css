@@ -168,6 +168,12 @@ footer #chat button {
 #messages .message.error:before {
   content: none;
 }
+#messages .message.prive {
+  opacity: 0.5;
+}
+#messages .message.prive:hover {
+  opacity: 1;
+}
 #messages .message .user {
   display: block;
   font-weight: bold;

@@ -2,7 +2,8 @@ var io = require('socket.io').listen(3000)
 
 var rooms = {};
 
-function User(name, admin){
+function User(id, name, admin){
+	this.id = id;
 	this.name = name;
 	this.admin = admin || false;
 	this.connected = true;
@@ -24,7 +25,7 @@ Room.prototype.isAdmin = function(name) {
 Room.prototype.hasUserByName = function(name) {
 	for (var i = this.users.length - 1; i >= 0; i--) {
 		if(this.users[i].name.toLowerCase() == name.toLowerCase())
-			return true;
+			return this.users[i];
 	}
 
 	return false;
@@ -60,10 +61,32 @@ io.on('connection', function(socket){
 			message: msg
 		};
 
-		// On test si c'est un commande
-		var command = testCommand(msg);
-		if(command != ""){
+		// On test si il y a une commande de type @Destinataire
+		var receiver = testReceiver(message);
+		if(receiver)
+		{
+			// On test si il y a un destinataire avec ce nom
+			var dest = receiver;
+			receiver = rooms[room].hasUserByName(receiver);
+			if(!receiver)
+			{
+				// Si non, on previent l'utilisateur et stop ici
+				socket.emit('chat', chatError(message, dest+" is not in the room"));
+				return;
+			}
+			// On test si le message est vide
+			if(message.message == "")
+			{
+				// Si vide, on previent l'utilisateur et stop ici
+				socket.emit('chat', chatError(message, "Please add your message after @"+dest));
+				return;
+			}
+		}
 
+		// On test si c'est un commande
+		var command = testCommand(message.message);
+		if(command)
+		{
 			// On tente de l'executer
 			message = execCommand(command, message);
 			
@@ -78,9 +101,21 @@ io.on('connection', function(socket){
 			}
 		}
 		
+		// On envoie le message on bon destinataire
 		console.log(user.name+' to '+room+': '+msg);
-		rooms[room].addMessage(message);
-		io.to(room).emit('chat', message);
+		if(receiver)
+		{
+			//TODO store private message
+			message["prive"] = receiver.name;
+			socket.emit('chat', message);
+			io.to(receiver.id).emit('chat', message);
+		}
+		else
+		{
+			rooms[room].addMessage(message);
+			io.to(room).emit('chat', message);
+		}
+		
 	});
 
 	socket.on('music', function(song){
@@ -141,7 +176,7 @@ io.on('connection', function(socket){
 
 		// On enregiste les valeurs
 		room = data.room;
-		user = new User(data.user, rooms[room].isAdmin(data.user));
+		user = new User(socket.id, data.user, rooms[room].isAdmin(data.user));
 		// On s'ajoute a la room
 		rooms[room].addUser(user);
 
@@ -175,7 +210,7 @@ io.on('connection', function(socket){
 
 		// On enregiste les valeurs
 		room = data.room;
-		user = new User(data.user, true);
+		user = new User(socket.id, data.user, true);
 		// On s'ajoute a la room
 		rooms[room] = new Room(room, user);
 
@@ -251,12 +286,23 @@ function execCommand(command, message){
 
 function testCommand(message){
 
-	if(message.indexOf("/") != 0) return "";
+	if(message.indexOf("/") != 0) return false;
 
-	var message = message.split(" ");
-	var command = message.shift();
+	var msg = message.split(" ");
+	var command = msg.shift();
 
 	return command;
+}
+
+function testReceiver(message){
+
+	if(message.message.indexOf("@") != 0) return false;
+
+	message.message = message.message.split(" ");
+	var receiver = message.message.shift().replace("@", "");
+	message.message = message.message.join(" ");
+
+	return receiver;
 }
 
 function chatError(message, error){

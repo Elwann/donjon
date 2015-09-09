@@ -11,14 +11,20 @@ function Chat(room, messages)
 	this.init(messages);
 }
 
+Chat.prototype.getClass = function(data) {
+	var c = '';
+	if(data.user.name == this.room.user.name) c += ' me';
+	if(data.user.admin) c += ' admin';
+	if(data.prive) c += ' prive';
+
+	return c;
+};
+
 Chat.prototype.showCommand = function(data)
 {
 	switch(data.command){
 		case "/roll":
-			var c = '';
-			if(data.user.name == this.room.user.name) c += ' me';
-			if(data.user.admin) c += ' admin';
-			this.$messages.append($('<li id="msg-'+this.messages.length+'" class="diceroll mui-panel'+c+'">').html('<span class="user">'+data.user.name+':</span> '+data.message));
+			this.$messages.append($('<li id="msg-'+this.messages.length+'" class="diceroll mui-panel'+this.getClass(data)+'">').html('<span class="user">'+((data.prive) ? data.user.name+' to '+data.prive : data.user.name)+':</span> '+data.message));
 			this.messages.push(data);
 			if(data.user.name == this.room.user.name) this.room.dices.roll(data.dice);
 			break;
@@ -31,7 +37,9 @@ Chat.prototype.showCommand = function(data)
 
 Chat.prototype.showError = function(data)
 {
+	data.user.name = "error";
 	this.$messages.append($('<li id="msg-'+this.messages.length+'" class="message error me">').html(data.message));
+	this.messages.push(data);
 	this.$content.scrollTop(this.$content[0].scrollHeight);
 	return;
 };
@@ -48,16 +56,13 @@ Chat.prototype.addMessage = function(data)
 		return;
 	}
 
-	if(this.messages.length > 0 && this.messages[this.messages.length-1].user.name == data.user.name && !this.messages[this.messages.length-1].command){
+	if(this.messages.length > 0 && this.messages[this.messages.length-1].user.name == data.user.name && !this.messages[this.messages.length-1].command && this.messages[this.messages.length-1].prive == data.prive){
 		this.messages[this.messages.length-1].message += "<br>"+data.message;
 		$('#msg-'+(this.messages.length-1)).find('.text').append("<br>"+data.message);
 	} else {
-		var c = '';
-		if(data.user.name == this.room.user.name) c += ' me';
-		if(data.user.admin) c += ' admin';
-
-		this.$messages.append($('<li id="msg-'+this.messages.length+'" class="message mui-panel'+c+'">').html(
-			'<span class="user">'+data.user.name+':</span> '+
+		// Change le nom pour différencer privé / public
+		this.$messages.append($('<li id="msg-'+this.messages.length+'" class="message mui-panel'+this.getClass(data)+'">').html(
+			'<span class="user">'+((data.prive) ? data.user.name+' to '+data.prive : data.user.name)+':</span> '+
 			'<span class="text">'+data.message+'</span>'
 		));
 
