@@ -5,8 +5,8 @@ function Room(socket, name, user, users, messages)
 	this.user = user;
 
 	this.dices = new Dices(this);
-	this.chat = new Chat(this, messages);
 	this.users = new Users(this, users);
+	this.chat = new Chat(this, messages);
 	this.music = new Music(this);
 
 	this.$roomName = $("#room-name");
@@ -43,7 +43,7 @@ Room.prototype.destroy = function()
 	this.$logout.off(".room");
 
 	this.dices.destroy();
-	this.chat.destroy();
 	this.users.destroy();
+	this.chat.destroy();
 	this.music.destroy();
 };

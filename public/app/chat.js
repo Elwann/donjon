@@ -2,6 +2,7 @@ function Chat(room, messages)
 {
 	this.room = room;
 	this.messages = [];
+	this.typing = null;
 
 	this.$messages = $("#messages");
 	this.$message = $("#message");
@@ -72,15 +73,40 @@ Chat.prototype.addMessage = function(data)
 	this.$content.scrollTop(this.$content[0].scrollHeight);
 };
 
+Chat.prototype.typingStart = function()
+{
+	var that = this;
+	if(this.typing)
+	{
+		// Si typing en cours, on update
+		clearTimeout(this.typing);
+		this.typing = setTimeout(function(){ that.typingStop(); }, 2500);
+	}
+	else
+	{
+		// Sinon on emet l'info
+		this.room.socket.emit('typing start');
+		this.typing = setTimeout(function(){ that.typingStop(); }, 2500);
+	}
+};
+
+Chat.prototype.typingStop = function()
+{
+	clearTimeout(this.typing);
+	this.typing = null;
+	this.room.socket.emit('typing stop');
+};
+
 Chat.prototype.init = function(messages)
 {
 	var that = this;
 
+	// Ajouter messages existants
 	for (i = 0, length = messages.length; i < length; i++) {
 		this.addMessage(messages[i]);
 	}
 
-	// chat
+	// Envoyer message
 	this.$chat.on("submit.chat", function(e){
 		e.preventDefault();
 
@@ -89,18 +115,30 @@ Chat.prototype.init = function(messages)
 		if(message != ""){
 			that.room.socket.emit('chat', message);
 			that.$message.val('');
+			that.typingStop();
 		}
 
 		return false;
 	});
 
+	// Recevoir messages
 	this.room.socket.on('chat', function(data){
 		that.addMessage(data);
+	});
+
+	// Gestion du typing
+	this.$message.on("keypress.chat", function(e){
+		// e.keyCode : 8 back, 13 entrée
+		if(e.keyCode != 8 && e.keyCode != 13)
+		{
+			that.typingStart();
+		}
 	});
 };
 
 Chat.prototype.destroy = function()
 {
 	this.$chat.off(".chat");
+	this.$message.off(".chat");
 	this.room.socket.removeAllListeners('chat');
 };

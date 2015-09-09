@@ -8,6 +8,15 @@ function Users(room, users)
 	this.init(users);
 }
 
+Users.prototype.getUserByName = function(name) {
+	for (var i = this.users.length - 1; i >= 0; i--) {
+		if(this.users[i].name.toLowerCase() == name.toLowerCase())
+			return this.users[i];
+	}
+
+	return false;
+};
+
 Users.prototype.showUser = function(user)
 {
 	var c = "user";
@@ -36,7 +45,17 @@ Users.prototype.addUser = function(user)
 
 Users.prototype.removeUser = function(user)
 {
-	$("#users #user-"+user.name).remove();
+	$("#user-"+user.name).remove();
+};
+
+Users.prototype.typingStart = function(user)
+{
+	$("#user-"+user.name).addClass("typing");
+};
+
+Users.prototype.typingStop = function(user)
+{
+	$("#user-"+user.name).removeClass("typing");
 };
 
 Users.prototype.init = function(users)
@@ -48,7 +67,7 @@ Users.prototype.init = function(users)
 		this.addUser(users[i]);
 	}
 
-	// users
+	// Users connexions
 	this.room.socket.on('user login', function(data){
 		that.addUser(data);
 	});
@@ -56,10 +75,21 @@ Users.prototype.init = function(users)
 	this.room.socket.on('user logout', function(data){
 		that.removeUser(data);
 	});
+
+	// Users typing
+	this.room.socket.on('typing start', function(data){
+		that.typingStart(data);
+	});
+
+	this.room.socket.on('typing stop', function(data){
+		that.typingStop(data);
+	});
 };
 
 Users.prototype.destroy = function()
 {
 	this.room.socket.removeAllListeners('user login');
 	this.room.socket.removeAllListeners('user logout');
+	this.room.socket.removeAllListeners('typing start');
+	this.room.socket.removeAllListeners('typing stop');
 };

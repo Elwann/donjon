@@ -52,6 +52,9 @@ io.on('connection', function(socket){
 	var user;
 	var room;
 
+	//
+	// Gestion du chat
+	//
 	socket.on('chat', function(msg){
 		if(!room || !user)
 			return;
@@ -118,6 +121,9 @@ io.on('connection', function(socket){
 		
 	});
 
+	//
+	// Gestion de la musique
+	//
 	socket.on('music', function(song){
 		if(!room || !user)
 			return;
@@ -149,8 +155,28 @@ io.on('connection', function(socket){
 
 		console.log('Volume audio "'+volume+'" in room '+room);
 		io.to(room).emit('music volume', volume);
-	})
+	});
 
+	//
+	// Gestion du typing
+	//
+	socket.on('typing start', function(){
+		if(!room || !user)
+			return;
+
+		io.to(room).emit('typing start', user);
+	});
+
+	socket.on('typing stop', function(){
+		if(!room || !user)
+			return;
+
+		io.to(room).emit('typing stop', user);
+	});
+
+	//
+	// Connection
+	//
 	socket.on('room join', function(data){
 		console.log('room join');
 
