@@ -29,7 +29,7 @@
 		}
 
 		// Setup dices
-		//Dices.load(room.name+" dices");
+		Dices.init(room.name+" dices");
 
 		// users
 		socket.on('user login', function(data){
@@ -64,6 +64,8 @@
 		});
 
 		// Music
+		Music.init();
+
 		socket.on('music', function(data){
 			Music.load(data);
 		});
@@ -93,6 +95,25 @@
 					Music.showList();
 				} else {
 					socket.emit('music pause');
+				}
+			});
+
+			$('body').on('click', '.song', function(){
+				$('.music-selector').fadeOut(300);
+				if(name.admin){
+					socket.emit('music', [$(this).attr('data-song')]);
+				}
+			});
+
+			$('body').on('click', '.playlist', function(e){
+				$('.music-selector').fadeOut(300);
+				if(name.admin){
+					var songs = [];
+					$(this).next('ul').find('.song').each(function(){
+						songs.push($(this).attr('data-song'));
+					});
+
+					socket.emit('music', songs);
 				}
 			});
 		}
@@ -235,29 +256,5 @@
 		var content = $("#content");
 		content.scrollTop(content[0].scrollHeight);
 	}
-
-
-	//
-	// Music player
-	//
-
-	$('body').on('click', '.song', function(){
-		$('.music-selector').fadeOut(300);
-		if(name.admin){
-			socket.emit('music', [$(this).attr('data-song')]);
-		}
-	});
-
-	$('body').on('click', '.playlist', function(e){
-		$('.music-selector').fadeOut(300);
-		if(name.admin){
-			var songs = [];
-			$(this).next('ul').find('.song').each(function(){
-				songs.push($(this).attr('data-song'));
-			});
-
-			socket.emit('music', songs);
-		}
-	});
 
 })();

@@ -83,38 +83,48 @@ var Music = {
 	unmute: function(){
 		Music.volume(Music.vol);
 		Music.vol = 0;
+	},
+	init: function(){
+		$("#volume").on('mousedown.music', function(e){
+			e.preventDefault();
+			Music.volume(Math.round(e.offsetX/$(this).width()*100)/100);
+			$(window).on('mousemove.music', function(e){
+				var vol = $("#volume");
+				var offset = e.clientX - vol.offset().left;
+				Music.volume(Math.round(offset/vol.width()*100)/100);
+			});
+		});
+
+		$("#mute").on('click.music', function(){
+			if(Music.vol == 0){
+				Music.mute();
+			} else {
+				Music.unmute();
+			}
+		});
+
+		$(window).on('mouseup.music', function(){
+			$(window).off('mousemove.music');
+		});
+
+		$('body').on("click.music", ".music-selector-close", function(){
+			$('.music-selector').fadeOut(300);
+		});
+
+		$(Music.player).on('ended.music', function(e){
+			Music.pause();
+			Music.next();
+		});
+
+		Music.player.volume = 1;
+	},
+	destroy: function(){
+		Music.player.pause();
+		Music.player.src = null;
+		$("#volume").off('.music');
+		$("#mute").off('.music');
+		$('body').off('.music');
+		$(window).off('.music');
+		$(Music.player).off('.music');
 	}
 };
-
-$("#volume").mousedown(function(e){
-	e.preventDefault();
-	Music.volume(Math.round(e.offsetX/$(this).width()*100)/100);
-	$('body').on('mousemove.volume', function(e){
-		var vol = $("#volume");
-		var offset = e.clientX - vol.offset().left;
-		Music.volume(Math.round(offset/vol.width()*100)/100);
-	});
-});
-
-$("#mute").click(function(){
-	if(Music.vol == 0){
-		Music.mute();
-	} else {
-		Music.unmute();
-	}
-});
-
-$(window).mouseup(function(){
-	$(window).off('mousemove.volume');
-});
-
-$('body').on("click", ".music-selector-close", function(){
-	$('.music-selector').fadeOut(300);
-});
-
-$(Music.player).on('ended', function(e){
-	Music.pause();
-	Music.next();
-});
-
-Music.player.volume = 1;

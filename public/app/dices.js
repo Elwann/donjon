@@ -7,9 +7,9 @@ var Dices = {
 	/*
 	For now we update this when we load the messages
 	// Load dice for room in param
-	load: function(roomCookie){
+	load: function(roomName){
 		Dices.unload();
-		var cookie = Cookies.get(roomCookie);
+		var cookie = Cookies.get(roomName);
 		if(cookie){
 			var dices = cookie.split('|');
 			for (var i = dices.length - 1; i >= 0; i--) {
@@ -24,7 +24,7 @@ var Dices = {
 		}
 	},
 	// Save dices for room
-	save: function(roomCookie){
+	save: function(roomName){
 		var dices = [];
 
 		for (var i = Dices.dices.length - 1; i >= 0; i--) {
@@ -32,7 +32,7 @@ var Dices = {
 		}
 
 		if(dices.length > 0){
-			Cookies.set(roomCookie, dices.join('|'), { expires: 356 });
+			Cookies.set(roomName, dices.join('|'), { expires: 356 });
 		} else {
 			console.log("No dices to save");
 		}
@@ -79,9 +79,15 @@ var Dices = {
 	},
 	number: function(){
 		return Math.max(Math.min(Math.round(($(window).width() * 0.15) / 40), 5), 1);
+	},
+	init: function(roomName){
+		$(window).on('resize.dices', function(){
+			Dices.show();
+		});
+
+		//Dices.load(roomName);
+	},
+	destroy: function(){
+		$(window).off('.dices');
 	}
 }
-
-$(window).resize(function(){
-	Dices.show();
-});
