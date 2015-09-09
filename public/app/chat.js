@@ -27,6 +27,7 @@ Chat.prototype.showCommand = function(data)
 		case "/roll":
 			this.$messages.append($('<li id="msg-'+this.messages.length+'" class="diceroll mui-panel'+this.getClass(data)+'">').html('<span class="user">'+((data.prive) ? data.user.name+' to '+data.prive : data.user.name)+':</span> '+data.message));
 			this.messages.push(data);
+			this.room.users.showLastDice(data.user, data.message);
 			if(data.user.name == this.room.user.name) this.room.dices.roll(data.dice);
 			break;
 	}
