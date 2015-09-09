@@ -1,15 +1,17 @@
-var io = require('socket.io').listen(3000)
+var io = require('socket.io').listen(3000);
 
 var rooms = {};
 
-function User(id, name, admin){
+function User(id, name, admin)
+{
 	this.id = id;
 	this.name = name;
 	this.admin = admin || false;
 	this.connected = true;
 }
 
-function Room(name, admin){
+function Room(name, admin)
+{
 	this.name = name;
 	this.admin = admin;
 	this.users = [admin];
@@ -18,12 +20,15 @@ function Room(name, admin){
 	console.log("Create room "+name+" by "+admin.name);
 }
 
-Room.prototype.isAdmin = function(name) {
+Room.prototype.isAdmin = function(name)
+{
 	return (name == this.admin.name);
 };
 
-Room.prototype.hasUserByName = function(name) {
-	for (var i = this.users.length - 1; i >= 0; i--) {
+Room.prototype.hasUserByName = function(name)
+{
+	for (var i = this.users.length - 1; i >= 0; i--)
+	{
 		if(this.users[i].name.toLowerCase() == name.toLowerCase())
 			return this.users[i];
 	}
@@ -31,22 +36,26 @@ Room.prototype.hasUserByName = function(name) {
 	return false;
 };
 
-Room.prototype.addUser = function(user) {
+Room.prototype.addUser = function(user)
+{
 	console.log("Add user "+user.name+" from room "+this.name);
 	this.users.push(user);
 };
 
-Room.prototype.removeUser = function(user) {
+Room.prototype.removeUser = function(user)
+{
 	console.log("Remove user "+user.name+" from room "+this.name);
-	if(this.hasUserByName(user.name)) this.users.splice(this.users.indexOf(user), 1);
+	if(this.hasUserByName(user.name))
+		this.users.splice(this.users.indexOf(user), 1);
 };
 
-Room.prototype.addMessage = function(message){
+Room.prototype.addMessage = function(message)
+{
 	this.messages.push(message);
 };
 
-io.on('connection', function(socket){
-
+io.on('connection', function(socket)
+{
 	console.log('user connected');
 
 	var user;
@@ -55,7 +64,8 @@ io.on('connection', function(socket){
 	//
 	// Gestion du chat
 	//
-	socket.on('chat', function(msg){
+	socket.on('chat', function(msg)
+	{
 		if(!room || !user)
 			return;
 
@@ -92,13 +102,15 @@ io.on('connection', function(socket){
 		{
 			// On tente de l'executer
 			message = execCommand(command, message);
-			
-			if(message.error){
+			if(message.error)
+			{
 				// Si la commande n'est pas reconnu, on l'indique
 				console.log(user.name+' to '+room+': command error');
 				socket.emit('chat', message);
 				return;
-			} else {
+			}
+			else
+			{
 				// Si c'est un commande
 				message["command"] = command;
 			}
@@ -111,20 +123,21 @@ io.on('connection', function(socket){
 			//TODO store private message
 			message["prive"] = receiver.name;
 			socket.emit('chat', message);
-			if(receiver.name.toLowerCase() != user.name.toLowerCase()) io.to(receiver.id).emit('chat', message);
+			if(receiver.name.toLowerCase() != user.name.toLowerCase())
+				io.to(receiver.id).emit('chat', message);
 		}
 		else
 		{
 			rooms[room].addMessage(message);
 			io.to(room).emit('chat', message);
 		}
-		
 	});
 
 	//
 	// Gestion de la musique
 	//
-	socket.on('music', function(song){
+	socket.on('music', function(song)
+	{
 		if(!room || !user)
 			return;
 
@@ -135,7 +148,8 @@ io.on('connection', function(socket){
 		io.to(room).emit('music', song);
 	});
 
-	socket.on('music pause', function(){
+	socket.on('music pause', function()
+	{
 		if(!room || !user)
 			return;
 
@@ -146,7 +160,8 @@ io.on('connection', function(socket){
 		io.to(room).emit('music pause');
 	});
 
-	socket.on('music volume', function(volume){
+	socket.on('music volume', function(volume)
+	{
 		if(!room || !user)
 			return;
 
@@ -160,14 +175,16 @@ io.on('connection', function(socket){
 	//
 	// Gestion du typing
 	//
-	socket.on('typing start', function(){
+	socket.on('typing start', function()
+	{
 		if(!room || !user)
 			return;
 
 		io.to(room).emit('typing start', user);
 	});
 
-	socket.on('typing stop', function(){
+	socket.on('typing stop', function()
+	{
 		if(!room || !user)
 			return;
 
@@ -177,11 +194,13 @@ io.on('connection', function(socket){
 	//
 	// Connection
 	//
-	socket.on('room join', function(data){
+	socket.on('room join', function(data)
+	{
 		console.log('room join');
 
 		// Si la room n'exist pas, on exit
-		if(!rooms[data.room]){
+		if(!rooms[data.room])
+		{
 			socket.emit('login', { 
 				succes: false, 
 				error: 'Room '+data.room+' don\'t exist. <br>Press "create" to create instead.'
@@ -190,7 +209,8 @@ io.on('connection', function(socket){
 		}
 
 		// Si l'user existe, on exit
-		if(rooms[data.room].hasUserByName(data.user)){
+		if(rooms[data.room].hasUserByName(data.user))
+		{
 			socket.emit('login', { 
 				succes: false, 
 				error: 'User '+data.user+' exist. <br>Please use another name.'
@@ -220,11 +240,13 @@ io.on('connection', function(socket){
 		});
 	});
 
-	socket.on('room create', function(data){
+	socket.on('room create', function(data)
+	{
 		console.log('room create');
 
 		// Si la room exist, on exit
-		if(rooms[data.room]){
+		if(rooms[data.room])
+		{
 			socket.emit('login', { 
 				succes: false, 
 				error: 'Room '+data.room+' already exist. <br>Press "join" to join instead.'
@@ -254,8 +276,10 @@ io.on('connection', function(socket){
 		});
 	});
 
-	socket.on('disconnect', function(){
-		if(!user && !room){
+	socket.on('disconnect', function()
+	{
+		if(!user && !room)
+		{
 			console.log('user disconnected');
 			return;
 		}
@@ -266,16 +290,18 @@ io.on('connection', function(socket){
 	});
 });
 
-function commandDice(message){
-
+function commandDice(message)
+{
 	var raw = message.message;
 	var diceroll = message.message;
 
-	if(raw.indexOf('d') < 0) {
+	if(raw.indexOf('d') < 0)
+	{
 		return chatError(message, "Not a valid dice");
 	}
 
-	function rollDice(match, p1, p2, offset, string){
+	function rollDice(match, p1, p2, offset, string)
+	{
 		p1 = p1 || 1;
 
 		var calc = [];
@@ -296,12 +322,13 @@ function commandDice(message){
 	var total = diceroll;
 
 	message["dice"] = message.message;
-	message.message = '<span class="dice-original">rolls '+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
+	message.message = '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
 
 	return message;
 }
 
-function execCommand(command, message){
+function execCommand(command, message)
+{
 	message.message = message.message.replace(command+" ", "");
 
 	switch(command){
@@ -310,9 +337,10 @@ function execCommand(command, message){
 	}
 }
 
-function testCommand(message){
-
-	if(message.indexOf("/") != 0) return false;
+function testCommand(message)
+{
+	if(message.indexOf("/") != 0)
+		return false;
 
 	var msg = message.split(" ");
 	var command = msg.shift();
@@ -320,9 +348,10 @@ function testCommand(message){
 	return command;
 }
 
-function testReceiver(message){
-
-	if(message.message.indexOf("@") != 0) return false;
+function testReceiver(message)
+{
+	if(message.message.indexOf("@") != 0)
+		return false;
 
 	message.message = message.message.split(" ");
 	var receiver = message.message.shift().replace("@", "");
@@ -331,7 +360,8 @@ function testReceiver(message){
 	return receiver;
 }
 
-function chatError(message, error){
+function chatError(message, error)
+{
 	message.message = error; 
 	message["error"] = true; 
 	return message;
