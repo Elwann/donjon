@@ -34,16 +34,23 @@ Music.prototype.crawlSongs = function(playlist)
 Music.prototype.showList = function()
 {
 	var that = this;
-	$.post('music/list.php', function(data){
-		$("body").append(
-			'<div class="music-selector overlay centerer">'+
-				'<div class="popin mui-panel centered">'+
-					'<i class="music-selector-close fa fa-times link"></i>'+
-					that.crawlSongs(data)+
-				'</div>'+
-			'</div>'
-		);
-	});
+
+	if($(".music-selector").length > 0){
+		$(".music-selector").fadeIn(300);
+	} else {
+		$.post('music/list.php', function(data){
+			$("body").append(
+				'<div class="music-selector overlay centerer" style="display:none;">'+
+					'<div class="popin mui-panel centered">'+
+						'<i class="music-selector-close fa fa-times link"></i>'+
+						that.crawlSongs(data)+
+					'</div>'+
+				'</div>'
+			);
+
+			$(".music-selector").fadeIn(300);
+		});
+	}
 };
 
 Music.prototype.load = function(data)
