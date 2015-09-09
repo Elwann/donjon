@@ -108,7 +108,7 @@ io.on('connection', function(socket){
 			//TODO store private message
 			message["prive"] = receiver.name;
 			socket.emit('chat', message);
-			io.to(receiver.id).emit('chat', message);
+			if(receiver.name.toLowerCase() != user.name.toLowerCase()) io.to(receiver.id).emit('chat', message);
 		}
 		else
 		{
