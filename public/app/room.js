@@ -6,6 +6,7 @@ function Room(socket, name, user, users, messages)
 
 	this.dices = new Dices(this);
 	this.users = new Users(this, users);
+	this.images = new Images(this);
 	this.chat = new Chat(this, messages);
 	this.music = new Music(this);
 

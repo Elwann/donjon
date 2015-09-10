@@ -96,6 +96,16 @@ body, html{
 		padding: 50px;
 		margin: 20px;
 	}
+
+	.image{
+		text-align: center;
+		padding: 20px;
+		img{
+			vertical-align: middle;
+			max-width: 100%;
+			max-height: 100%;
+		}
+	}
 }
 
 .link{
@@ -303,6 +313,11 @@ footer{
 		.user{
 			display: block;
 			font-weight: bold;
+		}
+
+		img{
+			max-width: 100%;
+			margin: 10px 0;
 		}
 
 		&:after, &:before {
@@ -586,6 +601,10 @@ footer{
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.closable{
+	cursor: crosshair;
 }
 
 @media screen and (max-width: 42em){
