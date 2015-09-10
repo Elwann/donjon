@@ -45,6 +45,10 @@ Users.prototype.addUser = function(user)
 
 Users.prototype.removeUser = function(user)
 {
+	var index = this.users.indexOf(user);
+	if(index >= 0)
+		this.users.splice(index, 1);
+	
 	$("#user-"+user.name).remove();
 };
 
