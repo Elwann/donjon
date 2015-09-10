@@ -39,15 +39,17 @@ Images.prototype.zoom = function(src)
 
 Images.prototype.upload = function(image)
 {
-	var that = this;
-	//TODO: IE9 compatible methode (probably throught img->canvas->base64)
-	reader = new FileReader();
-    reader.onload = function(evt){
-    	//TODO: affichage correcte des images, pour l'instant on passe par le chat
-    	that.room.socket.emit('chat', '<img class="zoomable link" src="'+evt.target.result+'" alt="">')
-    	//that.room.socket.emit('image', evt.target.result);
-    };
-    reader.readAsDataURL(image);  
+	if(image.type.split('/').shift() == 'image')
+	{
+		var that = this;
+		reader = new FileReader();
+		reader.onload = function(evt){
+			//TODO: affichage correcte des images, pour l'instant on passe par le chat
+			that.room.socket.emit('chat', '<img class="zoomable link" src="'+evt.target.result+'" alt="">')
+			//that.room.socket.emit('image', evt.target.result);
+		};
+		reader.readAsDataURL(image);
+	}
 };
 
 Images.prototype.init = function()
