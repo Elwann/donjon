@@ -2,7 +2,7 @@ function Dice(type){
 	this.type = type;
 	this.rolls = 0;
 	this.cooldown = null;
-	this.$item = $('<div class="dice d'+type.split('d').pop()+'">'+type+'</div>');
+	this.$item = $('<div class="dice d'+type.split('d').pop()+' noselect">'+type+'</div>');
 }
 
 Dice.prototype.roll = function() {
