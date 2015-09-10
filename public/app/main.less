@@ -3,7 +3,43 @@
 @error: #F44336;
 @color: #2196F3;
 
+// Replacement for base colors
+@navy: #001F3F;
+@blue: #0074D9;
+@aqua: #7FDBFF;
+@teal: #39CCCC;
+@olive: #3D9970;
+@green: #2ECC40;
+@lime: #01FF70;
+@yellow: #FFDC00;
+@orange: #FF851B;
+@red: #FF4136;
+@maroon: #85144B;
+@fuchsia: #F012BE;
+@purple: #B10DC9;
+@silver: #DDDDDD;
+@grey: #AAAAAA;
+@black: #111111;
 
+// Custom functions
+.animate(@name, @duration: 1s, @delay: 0s, @iteration: 1, @fill: both){
+  animation-name: @name;
+  animation-duration: @duration;
+  animation-delay: @delay;
+  animation-iteration-count: @iteration;
+  animation-fill-mode: @fill;
+}
+
+// Animations
+@keyframes fadein {
+  from {
+    opacity: 0
+  }
+
+  to { 
+    opacity: 1
+  }
+}
 
 //
 // Generics
@@ -384,6 +420,7 @@ footer{
 }
 
 .dice{
+	position: relative;
 	float: left;
 	width: @dicesize;
 	height: @dicesize;
@@ -396,6 +433,7 @@ footer{
 	cursor: pointer;
 	font-size: 10px;
 	transition: all 0.5s ease;
+	opacity: 1;
 	&.d6{ background: url("icons/d6.svg") no-repeat center; }
 	&.d8{ background: url("icons/d8.svg") no-repeat center; }
 	&.d10{ background: url("icons/d10.svg") no-repeat center; }
