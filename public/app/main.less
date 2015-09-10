@@ -395,6 +395,7 @@ footer{
 	background: #000;
 	cursor: pointer;
 	font-size: 10px;
+	transition: all 0.5s ease;
 	&.d6{ background: url("icons/d6.svg") no-repeat center; }
 	&.d8{ background: url("icons/d8.svg") no-repeat center; }
 	&.d10{ background: url("icons/d10.svg") no-repeat center; }
@@ -402,6 +403,13 @@ footer{
 	&.d20{ background: url("icons/d20.svg") no-repeat center; }
 	&.d100{ background: url("icons/d10.svg") no-repeat center; }
 	&:hover{ color: @color; }
+	&.cooldown{
+		cursor: default;
+		opacity: 0.3;
+		&:hover{
+			color: #fff;
+		}
+	}
 }
 
 

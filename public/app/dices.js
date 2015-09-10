@@ -1,7 +1,24 @@
+function Dice(type){
+	this.type = type;
+	this.rolls = 0;
+	this.cooldown = null;
+	this.$item = $('<div class="dice d'+type.split('d').pop()+'">'+type+'</div>');
+}
+
+Dice.prototype.roll = function() {
+	var that = this;
+	++this.rolls;
+	this.$item.addClass("cooldown");
+	clearTimeout(this.cooldown);
+	this.cooldown = setTimeout(function(){ that.$item.removeClass("cooldown"); }, 2000);
+};
+
 function Dices(room)
 {
 	this.room = room;
 	this.dices = [];
+
+	this.$dices = $("#dices");
 
 	this.init();
 }
@@ -54,13 +71,12 @@ Dices.prototype.show = function()
 {
 	this.sort();
 	var number = this.number();
-	var htmlDice = $("#dices");
 	var length = (this.dices.length > number) ? number : this.dices.length;
-	htmlDice.html("");
-	htmlDice[0].className = "dices-"+length;
+	this.$dices.children(".dice").detach();
+	this.$dices[0].className = "dices-"+length;
+
 	for(var i = 0; i < length; i++){
-		var diceClass = this.dices[i].type.split('d').pop();
-		htmlDice.append('<div class="dice d'+diceClass+'">'+this.dices[i].type+'</div>');
+		this.$dices.append(this.dices[i].$item);
 	}
 };
 
@@ -83,13 +99,14 @@ Dices.prototype.roll = function(dice)
 	for (var i = this.dices.length - 1; i >= 0; i--) {
 		if(this.dices[i].type == dice){
 			exist = true;
-			++this.dices[i].rolls;
+			this.dices[i].roll();
 			break;
 		}
 	}
 
-	if(!exist)
-		this.dices.push({type: dice, rolls: 1});
+	if(!exist) {
+		this.dices.push(new Dice(dice));
+	}
 
 	this.show();
 };
@@ -109,8 +126,11 @@ Dices.prototype.init = function()
 
 	$(document).on("click.dices", ".dice", function(e){
 		e.preventDefault();
-		var dice = $(this).html();
-		that.room.socket.emit('chat', "/roll "+dice);
+		var $this = $(this);
+		if(!$this.hasClass("cooldown")){
+			var dice = $this.html();
+			that.room.socket.emit('chat', "/roll "+dice);
+		}
 	});
 };
 

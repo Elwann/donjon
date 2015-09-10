@@ -321,6 +321,7 @@ footer #chat button {
   background: #000;
   cursor: pointer;
   font-size: 10px;
+  transition: all 0.5s ease;
 }
 .dice.d6 {
   background: url("icons/d6.svg") no-repeat center;
@@ -342,6 +343,13 @@ footer #chat button {
 }
 .dice:hover {
   color: #2196f3;
+}
+.dice.cooldown {
+  cursor: default;
+  opacity: 0.3;
+}
+.dice.cooldown:hover {
+  color: #fff;
 }
 .music-selector ul {
   padding-left: 20px;
