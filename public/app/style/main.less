@@ -470,20 +470,75 @@ footer{
 // Audio
 //
 .music-selector{
+	h4{
+		position: relative;
+		margin: 0;
+		padding-left: 20px;
+		line-height: 26px;
+	}
 	ul{
+		position: relative;
+		padding-left: 0;
+		list-style: none;
+	}
+	li{
+		position: relative;
+		line-height: 26px;
 		padding-left: 20px;
 	}
+	.list{
+		&:hover .icon-play{
+			opacity: 1;
+		}
+	}
 	.popin{
-		position: relative;
+		position: static !important;
+	}
+	.icon-play{
+		position: absolute;
+		font-size: 10px;
+		padding: 8px;
+		right: 0;
+		transition: all 0.6s ease;
+		opacity: 0;
+	}
+	.volet-btn{
+		position: absolute;
+		top: 0;
+		line-height: 25px;
+		width: 20px;
+		text-align: center;
+		z-index: 1;
+	}
+	.volet-content{
+		display: none;
+	}
+	.volet-checkbox{
+		position: absolute;
+		visibility: hidden;
+		z-index: -1;
+		height: 0; width: 0;
+		&:checked+label{
+			&:before{
+				content: "\f0d7";
+			}
+			&+.volet-content{
+				display: block;
+			}
+		}
+		
 	}
 }
 
 .music-selector-close{
 	position: absolute;
-	top: 0;
-	right: 0;
-	font-size: 20px;
-	padding: 10px;
+    top: 0;
+    right: 0;
+    font-size: 20px;
+    line-height: 40px;
+    width: 40px;
+    text-align: center;
+    color: #fff;
 }
 
 .volume-controls{

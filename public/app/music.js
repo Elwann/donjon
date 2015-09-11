@@ -15,15 +15,19 @@ function Music(room)
 	this.init();
 }
 
-Music.prototype.crawlSongs = function(playlist)
+Music.prototype.crawlSongs = function(playlist, index)
 {
-	var musiclist = '<strong class="playlist link">'+playlist.title+'</strong>';
-	musiclist += '<ul>';
+	++index;
+	var musiclist = '';
+	musiclist += '<h4 class="playlist list link">'+playlist.title+'<i class="icon-play fa fa-play"></i></h4>';
+	musiclist += '<input id="volet-'+index+'" type="checkbox" '+((index==1)?'checked':'')+' class="volet-checkbox">';
+	musiclist += '<label for="volet-'+index+'" class="volet-btn link fa fa-caret-right"></label>';
+	musiclist += '<ul class="volet-content">';
 	for(var i = 0; i < playlist.songs.length; i++){
 		if(playlist.songs[i].type == "playlist"){
-			musiclist += '<li>'+this.crawlSongs(playlist.songs[i])+'</li>';
+			musiclist += '<li>'+this.crawlSongs(playlist.songs[i], index)+'</li>';
 		} else {
-			musiclist += '<li class="song link" data-song="music/'+playlist.songs[i].url+'">'+playlist.songs[i].title+'</li>';
+			musiclist += '<li class="song list link" data-song="music/'+playlist.songs[i].url+'">'+playlist.songs[i].title+'<i class="icon-play fa fa-play"></i></li>';
 		}
 	}
 	musiclist += '</ul>';
@@ -43,7 +47,7 @@ Music.prototype.showList = function()
 				'<div class="music-selector overlay centerer" style="display:none;">'+
 					'<div class="popin mui-panel centered">'+
 						'<i class="music-selector-close fa fa-times link"></i>'+
-						that.crawlSongs(data)+
+						'<div style="position:relative;">'+that.crawlSongs(data, 0)+'</div>'+
 					'</div>'+
 				'</div>'
 			);
