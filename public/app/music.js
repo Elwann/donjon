@@ -4,6 +4,7 @@ function Music(room)
 	this.playlist = [];
 	this.current = 0;
 	this.vol = 0;
+	this.volet = 0;
 	this.player = new Audio();
 
 	this.$play = $("#play");
@@ -15,17 +16,17 @@ function Music(room)
 	this.init();
 }
 
-Music.prototype.crawlSongs = function(playlist, index)
+Music.prototype.crawlSongs = function(playlist)
 {
-	++index;
+	++this.volet;
 	var musiclist = '';
 	musiclist += '<h4 class="playlist list link">'+playlist.title+'<i class="icon-play fa fa-play"></i></h4>';
-	musiclist += '<input id="volet-'+index+'" type="checkbox" '+((index==1)?'checked':'')+' class="volet-checkbox">';
-	musiclist += '<label for="volet-'+index+'" class="volet-btn link fa fa-caret-right"></label>';
+	musiclist += '<input id="volet-'+this.volet+'" type="checkbox" '+((this.volet==1)?'checked':'')+' class="volet-checkbox">';
+	musiclist += '<label for="volet-'+this.volet+'" class="volet-btn link fa fa-caret-right"></label>';
 	musiclist += '<ul class="volet-content">';
 	for(var i = 0; i < playlist.songs.length; i++){
 		if(playlist.songs[i].type == "playlist"){
-			musiclist += '<li>'+this.crawlSongs(playlist.songs[i], index)+'</li>';
+			musiclist += '<li>'+this.crawlSongs(playlist.songs[i])+'</li>';
 		} else {
 			musiclist += '<li class="song list link" data-song="music/'+playlist.songs[i].url+'">'+playlist.songs[i].title+'<i class="icon-play fa fa-play"></i></li>';
 		}
@@ -38,6 +39,7 @@ Music.prototype.crawlSongs = function(playlist, index)
 Music.prototype.showList = function()
 {
 	var that = this;
+	this.volet = 0;
 
 	if($(".music-selector").length > 0){
 		$(".music-selector").fadeIn(300);
@@ -47,7 +49,7 @@ Music.prototype.showList = function()
 				'<div class="music-selector overlay centerer" style="display:none;">'+
 					'<div class="popin mui-panel centered">'+
 						'<i class="music-selector-close fa fa-times link"></i>'+
-						'<div style="position:relative;">'+that.crawlSongs(data, 0)+'</div>'+
+						'<div style="position:relative;">'+that.crawlSongs(data)+'</div>'+
 					'</div>'+
 				'</div>'
 			);
