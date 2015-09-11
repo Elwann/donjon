@@ -128,6 +128,7 @@ Dices.prototype.init = function()
 		e.preventDefault();
 		var $this = $(this);
 		if(!$this.hasClass("cooldown")){
+			$this.addClass("cooldown");
 			var dice = $this.html();
 			that.room.socket.emit('chat', "/roll "+dice);
 		}
