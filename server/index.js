@@ -102,7 +102,6 @@ io.on('connection', function(socket)
 		var message = {
 			id: id,
 			user: user,
-			raw: msg, //TODO: need some optimisation
 			message: msg
 		};
 

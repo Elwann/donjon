@@ -183,9 +183,8 @@ Chat.prototype.startEdit = function()
 {
 	if(this.editMode >= 0){
 		var that = this;
-		var text = this.myMessages[this.editMode].raw;
 		this.$message.focus();
-		this.$message.val(text);
+		this.$message.val(this.myMessages[this.editMode].message);
 		setTimeout(function(){ that.$message.putCursorAtEnd(); }, 0);
 	}
 };
@@ -248,7 +247,11 @@ Chat.prototype.init = function(messages)
 		{
 			if (that.editMode >= 0)
 			{
-				that.room.socket.emit("chat edit", that.myMessages[that.editMode].id, message);
+				var myMsg = that.myMessages[that.editMode];
+				if(myMsg.prive)
+					message = "@"+myMsg.prive+" "+message;
+
+				that.room.socket.emit("chat edit", myMsg.id, message);
 				that.stopEdit();
 			}
 			else
