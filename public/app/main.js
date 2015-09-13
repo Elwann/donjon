@@ -15,7 +15,8 @@
 		if(room == "" || user == "" || loading) 
 			return false;
 
-		item.append('&nbsp;&nbsp;<i class="fa fa-spin fa-refresh"></i>');
+		loading = true;
+		item.append('&nbsp;&nbsp;<i id="loading" class="fa fa-spin fa-refresh"></i>');
 		socket.emit(action, { room: room, user: user });
 	}
 
@@ -35,6 +36,9 @@
 
 	// Wait for server login event and create Room Object
 	socket.on('login', function(data){
+		loading = false;
+		$("#loading").remove();
+
 		if(!data.succes){
 			$("#login-msg").html(data.error).addClass('error');
 			return;
