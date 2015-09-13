@@ -112,8 +112,14 @@ Chat.prototype.editMessage = function(data)
 	var index = this.getMessageIndexById(data.id);
 	if(index >= 0)
 	{
-		this.messages[index] = data;
-		$("#msg-"+data.id).html(data.message);
+		var myIndex = this.myMessages.indexOf(this.messages[index]);
+		if(myIndex >= 0)
+		{
+			this.myMessages[myIndex] = data;
+			this.messages[index] = data;
+			$("#msg-"+data.id).html(data.message);
+		}
+		
 	}
 };
 
