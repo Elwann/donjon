@@ -44,6 +44,17 @@ Chat.prototype.getClass = function(data) {
 	return c;
 };
 
+Chat.prototype.isNewBox = function(data)
+{
+	return !(
+		this.messages.length > 0 &&
+		this.messages[this.messages.length-1].user.name == data.user.name &&
+		!this.messages[this.messages.length-1].command &&
+		!this.messages[this.messages.length-1].image &&
+		this.messages[this.messages.length-1].prive == data.prive
+	);
+};
+
 Chat.prototype.showCommand = function(data)
 {
 	switch(data.command){
@@ -69,6 +80,27 @@ Chat.prototype.showError = function(data)
 	return;
 };
 
+Chat.prototype.showImage = function(data)
+{
+	var text = '<div id="image-'+data.image+'"><a href="#" data-image="'+data.image+'">Download image '+data.name+'</a></div>';
+	if(this.isNewBox(data))
+	{
+		this.$messages.append(
+			'<li id="msgbox-'+(++this.msgbox)+'" class="message mui-panel'+this.getClass(data)+'">'+
+				'<div class="user">'+((data.prive) ? data.user.name+' to '+data.prive : data.user.name)+':</div> '+
+				'<div class="text">'+text+'</div>'+
+			'</li>'
+		);
+	}
+	else
+	{
+		$('#msgbox-'+this.msgbox).find('.text').append(text);
+	}
+	
+	this.addMessage(data, false);
+	this.$content.scrollTop(this.$content[0].scrollHeight);
+};
+
 Chat.prototype.message = function(data)
 {
 	if(data.error){
@@ -81,15 +113,12 @@ Chat.prototype.message = function(data)
 		return;
 	}
 
-	if(this.messages.length > 0 
-		&& this.messages[this.messages.length-1].user.name == data.user.name 
-		&& !this.messages[this.messages.length-1].command 
-		&& this.messages[this.messages.length-1].prive == data.prive)
-	{
-		// On ne crée pas de nouvelle box
-		$('#msgbox-'+this.msgbox).find('.text').append('<div id="msg-'+data.id+'">'+data.message+'</div>');
-	} 
-	else
+	if(typeof data.image !== "undefined"){
+		this.showImage(data);
+		return;
+	}
+
+	if(this.isNewBox(data))
 	{
 		// Nouvelle box
 		this.$messages.append(
@@ -98,6 +127,11 @@ Chat.prototype.message = function(data)
 				'<div class="text"><div id="msg-'+data.id+'">'+data.message+'</div></div>'+
 			'</li>'
 		);
+	} 
+	else
+	{
+		// On ne crée pas de nouvelle box
+		$('#msgbox-'+this.msgbox).find('.text').append('<div id="msg-'+data.id+'">'+data.message+'</div>');
 	}
 
 	this.addMessage(data, true);
@@ -106,8 +140,8 @@ Chat.prototype.message = function(data)
 
 Chat.prototype.editMessage = function(data)
 {
-	// Errors and command aren't editable
-	if(data.error || data.command) return;
+	// Errors, command and images aren't editable
+	if(data.error || data.command || data.image) return;
 
 	var index = this.getMessageIndexById(data.id);
 	if(index >= 0)

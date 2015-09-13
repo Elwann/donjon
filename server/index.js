@@ -1,6 +1,7 @@
 var io = require('socket.io').listen(3000);
 
 var messageid = 0;
+var imagesid = 0;
 var rooms = {};
 
 function User(id, name, admin)
@@ -17,6 +18,7 @@ function Room(name, admin)
 	this.admin = admin;
 	this.users = [admin];
 	this.messages = [];
+	this.images = [];
 
 	console.log("Create room "+name+" by "+admin.name);
 }
@@ -36,7 +38,6 @@ Room.prototype.getUserByName = function(name)
 
 	return false;
 };
-
 
 Room.prototype.addUser = function(user)
 {
@@ -72,6 +73,17 @@ Room.prototype.addMessage = function(message)
 	}
 };
 
+Room.prototype.getImageById = function(id)
+{
+	for (var i = this.images.length - 1; i >= 0; i--)
+	{
+		if(this.images[i].id == id)
+			return this.images[i];
+	}
+
+	return false;
+};
+
 io.on('connection', function(socket)
 {
 	console.log('user connected');
@@ -90,7 +102,7 @@ io.on('connection', function(socket)
 		var message = {
 			id: id,
 			user: user,
-			raw: msg, //TODO: need some optimisation (mostly for images, do not keep raw images messages)
+			raw: msg, //TODO: need some optimisation
 			message: msg
 		};
 
@@ -159,6 +171,47 @@ io.on('connection', function(socket)
 
 	socket.on('chat edit', function(id, msg){
 		parseMessage(id, msg, 'chat edit');
+	});
+
+	//
+	// Gestion des images
+	//
+	socket.on('image upload', function(name, data)
+	{
+		if(!room || !user)
+			return;
+
+		// On crée une nouvelle image
+		var image = {
+			id: imagesid++,
+			name: name,
+			url: data
+		};
+
+		rooms[room].images.push(image);
+
+		// On crée un message maintenant que l'image est upload
+		var message = {
+			id: messageid++,
+			user: user,
+			image: image.id,
+			name: image.name
+		};
+		
+		// On envoie le message avec le lien de l'image
+		console.log(user.name+' to '+room+': image '+name);
+		rooms[room].addMessage(message);
+		io.to(room).emit('chat', message);
+	});
+
+	socket.on('image download', function(data){
+		if(!room || !user)
+			return;
+
+		var image = rooms[room].getImageById(data);
+		if(image){
+			io.to(room).emit('image', image);
+		}
 	});
 
 	//

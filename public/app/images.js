@@ -8,11 +8,9 @@ function Images(room)
 	this.init();
 }
 
-/*
 Images.prototype.show = function(data) {
-	
+	$("#image-"+data.id).html('<img class="zoomable" src="'+data.url+'" alt="'+data.name+'" title="'+data.name+'">');
 };
-*/
 
 Images.prototype.close = function()
 {
@@ -44,12 +42,14 @@ Images.prototype.upload = function(image)
 		var that = this;
 		reader = new FileReader();
 		reader.onload = function(evt){
-			//TODO: affichage correcte des images, pour l'instant on passe par le chat
-			that.room.socket.emit('chat', '<img class="zoomable link" src="'+evt.target.result+'" alt="">')
-			//that.room.socket.emit('image', evt.target.result);
+			that.room.socket.emit('image upload', image.name, evt.target.result);
 		};
 		reader.readAsDataURL(image);
 	}
+};
+
+Images.prototype.download = function(id) {
+	this.room.socket.emit('image download', id);
 };
 
 Images.prototype.init = function()
@@ -67,13 +67,16 @@ Images.prototype.init = function()
 		.on('click.images', '.zoomable', function(e){
 			e.preventDefault();
 			that.zoom($(this).attr("src"));
+		})
+		.on('click.images', '[data-image]', function(e){
+			e.preventDefault();
+			$(this).append(' <i class="fa fa-spin fa-refresh"></i>');
+			that.download($(this).attr("data-image"));
 		});
 
-/*
 	this.room.socket.on('image', function(data){
 		that.show(data);
 	});
-*/
 };
 
 Images.prototype.destroy = function()

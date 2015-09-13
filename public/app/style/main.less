@@ -259,7 +259,6 @@ footer{
 		}
 	}
 }
-	
 
 #messages{
 	list-style-type: none;
@@ -271,6 +270,8 @@ footer{
 		padding: 10px 15px;
 		//border: 1px #ccc solid;
 		margin: 16px 40% 16px 0;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 
 		&.me{
 			margin-right: 0;
@@ -289,6 +290,9 @@ footer{
 		&.admin{
 			color: #fff;
 			background: @color;
+			a{
+				color: #fff;
+			}
 			&:after {
 				border-color: rgba(245, 245, 245, 0);
 				border-top-color: @color;

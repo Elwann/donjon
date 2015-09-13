@@ -190,6 +190,8 @@ footer #chat button {
   position: relative;
   padding: 10px 15px;
   margin: 16px 40% 16px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 #messages .message.me {
   margin-right: 0;
@@ -207,6 +209,9 @@ footer #chat button {
 #messages .message.admin {
   color: #fff;
   background: #2196f3;
+}
+#messages .message.admin a {
+  color: #fff;
 }
 #messages .message.admin:after {
   border-color: rgba(245, 245, 245, 0);
