@@ -148,12 +148,10 @@ Chat.prototype.editMessage = function(data)
 	{
 		var myIndex = this.myMessages.indexOf(this.messages[index]);
 		if(myIndex >= 0)
-		{
 			this.myMessages[myIndex] = data;
-			this.messages[index] = data;
-			$("#msg-"+data.id).html(data.message);
-		}
-		
+
+		this.messages[index] = data;
+		$("#msg-"+data.id).html(data.message);
 	}
 };
 
