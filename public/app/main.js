@@ -8,34 +8,28 @@
 	var socket = io(url);
 
 	var room;
+	var loading = false;
+
+	function loginRoom(item, room, user, action)
+	{
+		if(room == "" || user == "" || loading) 
+			return false;
+
+		item.append('&nbsp;&nbsp;<i class="fa fa-spin fa-refresh"></i>');
+		socket.emit(action, { room: room, user: user });
+	}
 
 	// Join room
-	function joinRoom(){
-		var room = $("#room").val();
-		var user = $("#user").val();
-
-		if(room == "" || user == "") return false;
-
-		socket.emit('room join', {
-			room: room,
-			user: user
-		});
-
+	function joinRoom()
+	{
+		loginRoom($("#join"), $("#room").val(), $("#user").val(), 'room join');
 		return false;
 	}
 
 	// Create room
-	function createRoom(){
-		var room = $("#room").val();
-		var user = $("#user").val();
-
-		if(room == "" || user == "") return false;
-
-		socket.emit('room create', {
-			room: room,
-			user: user
-		});
-
+	function createRoom()
+	{
+		loginRoom($("#create"), $("#room").val(), $("#user").val(), 'room create');
 		return false;
 	}
 
@@ -61,10 +55,7 @@
 	var cookie = Cookies.get('login');
 	if(cookie) {
 		var ck = cookie.split("|");
-		socket.emit('room join', {
-			room: ck[0],
-			user: ck[1]
-		});
+		loginRoom($("#join"), ck[0], ck[1], 'room join');
 	}
 
 })();
