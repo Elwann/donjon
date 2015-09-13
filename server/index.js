@@ -1,5 +1,6 @@
 var io = require('socket.io').listen(3000);
 
+var messageid = 0;
 var rooms = {};
 
 function User(id, name, admin)
@@ -25,7 +26,7 @@ Room.prototype.isAdmin = function(name)
 	return (name == this.admin.name);
 };
 
-Room.prototype.hasUserByName = function(name)
+Room.prototype.getUserByName = function(name)
 {
 	for (var i = this.users.length - 1; i >= 0; i--)
 	{
@@ -36,6 +37,7 @@ Room.prototype.hasUserByName = function(name)
 	return false;
 };
 
+
 Room.prototype.addUser = function(user)
 {
 	console.log("Add user "+user.name+" from room "+this.name);
@@ -45,13 +47,29 @@ Room.prototype.addUser = function(user)
 Room.prototype.removeUser = function(user)
 {
 	console.log("Remove user "+user.name+" from room "+this.name);
-	if(this.hasUserByName(user.name))
+	if(this.getUserByName(user.name))
 		this.users.splice(this.users.indexOf(user), 1);
+};
+
+Room.prototype.getMessageIndexById = function(id)
+{
+	for (var i = this.messages.length - 1; i >= 0; i--)
+	{
+		if(this.messages[i].id == id)
+			return i;
+	}
+
+	return -1;
 };
 
 Room.prototype.addMessage = function(message)
 {
-	this.messages.push(message);
+	var index = this.getMessageIndexById(message.id);
+	if(index < 0){
+		this.messages.push(message);
+	} else {
+		this.messages[index] = message;
+	}
 };
 
 io.on('connection', function(socket)
@@ -64,13 +82,15 @@ io.on('connection', function(socket)
 	//
 	// Gestion du chat
 	//
-	socket.on('chat', function(msg)
+	function parseMessage(id, msg, action)
 	{
 		if(!room || !user)
 			return;
 
 		var message = {
+			id: id,
 			user: user,
+			raw: msg, //TODO: need some optimisation (mostly for images, do not keep raw images messages)
 			message: msg
 		};
 
@@ -80,7 +100,7 @@ io.on('connection', function(socket)
 		{
 			// On test si il y a un destinataire avec ce nom
 			var dest = receiver;
-			receiver = rooms[room].hasUserByName(receiver);
+			receiver = rooms[room].getUserByName(receiver);
 			if(!receiver)
 			{
 				// Si non, on previent l'utilisateur et stop ici
@@ -122,15 +142,23 @@ io.on('connection', function(socket)
 		{
 			//TODO store private message
 			message["prive"] = receiver.name;
-			socket.emit('chat', message);
+			socket.emit(action, message);
 			if(receiver.name.toLowerCase() != user.name.toLowerCase())
-				io.to(receiver.id).emit('chat', message);
+				io.to(receiver.id).emit(action, message);
 		}
 		else
 		{
 			rooms[room].addMessage(message);
-			io.to(room).emit('chat', message);
+			io.to(room).emit(action, message);
 		}
+	}
+	
+	socket.on('chat', function(msg){
+		parseMessage(messageid++, msg, 'chat');
+	});
+
+	socket.on('chat edit', function(id, msg){
+		parseMessage(id, msg, 'chat edit');
 	});
 
 	//
@@ -209,7 +237,7 @@ io.on('connection', function(socket)
 		}
 
 		// Si l'user existe, on exit
-		if(rooms[data.room].hasUserByName(data.user))
+		if(rooms[data.room].getUserByName(data.user))
 		{
 			socket.emit('login', { 
 				succes: false, 
