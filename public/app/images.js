@@ -9,7 +9,7 @@ function Images(room)
 }
 
 Images.prototype.show = function(data) {
-	$("#image-"+data.id).html('<img class="zoomable" src="'+data.url+'" alt="'+data.name+'" title="'+data.name+'">');
+	$("#image-"+data.id).html('<img class="zoomable link" src="'+data.url+'" alt="'+data.name+'" title="'+data.name+'">');
 };
 
 Images.prototype.close = function()

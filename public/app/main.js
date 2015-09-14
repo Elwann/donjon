@@ -16,7 +16,7 @@
 			return false;
 
 		loading = true;
-		item.append('&nbsp;&nbsp;<i id="loading" class="fa fa-spin fa-refresh"></i>');
+		item.append('<span id="loading">&nbsp;&nbsp;<i class="fa fa-spin fa-refresh"></i></span>');
 		socket.emit(action, { room: room, user: user });
 	}
 
