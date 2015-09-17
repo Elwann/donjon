@@ -2,11 +2,13 @@ var io = require('socket.io').listen(3000);
 
 var messageid = 0;
 var imagesid = 0;
+var userid = 0;
 var rooms = {};
 
-function User(id, name, admin)
+function User(id, socket, name, admin)
 {
 	this.id = id;
+	this.socket = socket;
 	this.name = name;
 	this.admin = admin || false;
 	this.connected = true;
@@ -86,7 +88,7 @@ Room.prototype.getImageById = function(id)
 
 io.on('connection', function(socket)
 {
-	console.log('user connected');
+	console.log('user '+socket.id+' connected');
 
 	var user;
 	var room;
@@ -155,7 +157,7 @@ io.on('connection', function(socket)
 			message["prive"] = receiver.name;
 			socket.emit(action, message);
 			if(receiver.name.toLowerCase() != user.name.toLowerCase())
-				io.to(receiver.id).emit(action, message);
+				io.to(receiver.socket).emit(action, message);
 		}
 		else
 		{
@@ -302,7 +304,7 @@ io.on('connection', function(socket)
 
 		// On enregiste les valeurs
 		room = data.room;
-		user = new User(socket.id, data.user, rooms[room].isAdmin(data.user));
+		user = new User(userid++, socket.id, data.user, rooms[room].isAdmin(data.user));
 		// On s'ajoute a la room
 		rooms[room].addUser(user);
 
@@ -338,7 +340,7 @@ io.on('connection', function(socket)
 
 		// On enregiste les valeurs
 		room = data.room;
-		user = new User(socket.id, data.user, true);
+		user = new User(userid++, socket.id, data.user, true);
 		// On s'ajoute a la room
 		rooms[room] = new Room(room, user);
 
@@ -360,7 +362,7 @@ io.on('connection', function(socket)
 	{
 		if(!user && !room)
 		{
-			console.log('user disconnected');
+			console.log('user '+socket.id+' disconnected');
 			return;
 		}
 		

@@ -23,7 +23,7 @@ Users.prototype.showUser = function(user)
 	if(user.admin) c += " admin";
 	if(user.name == this.room.user.name) c += " me";
 
-	var $user = '<li class="'+c+'" id="user-'+user.name+'">'+user.name+'<span class="user-dice"></span></li>';
+	var $user = '<li class="'+c+'" id="user-'+user.id+'">'+user.name+'<span class="user-dice"></span></li>';
 
 	if(user.admin) {
 		this.$users.prepend($user);
@@ -49,22 +49,22 @@ Users.prototype.removeUser = function(user)
 	if(index >= 0)
 		this.users.splice(index, 1);
 	
-	$("#user-"+user.name).remove();
+	$("#user-"+user.id).remove();
 };
 
 Users.prototype.typingStart = function(user)
 {
-	$("#user-"+user.name).addClass("typing");
+	$("#user-"+user.id).addClass("typing");
 };
 
 Users.prototype.typingStop = function(user)
 {
-	$("#user-"+user.name).removeClass("typing");
+	$("#user-"+user.id).removeClass("typing");
 };
 
 Users.prototype.showLastDice = function(user, dice)
 {
-	$("#user-"+user.name).find(".user-dice").html(dice);
+	$("#user-"+user.id).find(".user-dice").html(dice);
 };
 
 Users.prototype.init = function(users)
