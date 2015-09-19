@@ -27,6 +27,18 @@ html {
   color: #f44336;
   overflow: hidden;
 }
+body,
+html {
+  margin: 0;
+  overflow: hidden;
+}
+#dice-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+}
 .login-wrapper form .mui-btn {
   width: 120px;
 }

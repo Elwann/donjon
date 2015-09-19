@@ -1,4 +1,5 @@
 var io = require('socket.io').listen(3000);
+var DICES = require('./dices.js');
 
 var messageid = 0;
 var imagesid = 0;
@@ -21,9 +22,24 @@ function Room(name, admin)
 	this.users = [admin];
 	this.messages = [];
 	this.images = [];
+	this.settings = {
+		dices3D: true
+	};
+
+	if(this.settings.dices3D)
+		this.dices = new DICES.Dices3D(this.name, 1000, 1000);
 
 	console.log("Create room "+name+" by "+admin.name);
 }
+
+Room.prototype.getSocket = function() {
+	return {
+		name: this.name,
+		users: this.users,
+		messages: this.messages,
+		settings: this.settings
+	};
+};
 
 Room.prototype.isAdmin = function(name)
 {
@@ -86,6 +102,138 @@ Room.prototype.getImageById = function(id)
 	return false;
 };
 
+Room.prototype.parseMessage = function(user, socket, id, msg, action)
+{
+	if(!user)
+		return;
+
+	var that = this;
+
+	var message = {
+		id: id,
+		user: user,
+		message: msg
+	};
+
+	// On test si il y a une commande de type @Destinataire
+	var receiver = testReceiver(message);
+	if(receiver)
+	{
+		// On test si il y a un destinataire avec ce nom
+		var dest = receiver;
+		receiver = this.getUserByName(receiver);
+		if(!receiver)
+		{
+			// Si non, on previent l'utilisateur et stop ici
+			socket.emit('chat', chatError(message, dest+" is not in the room"));
+			return;
+		}
+		// On test si le message est vide
+		if(message.message == "")
+		{
+			// Si vide, on previent l'utilisateur et stop ici
+			socket.emit('chat', chatError(message, "Please add your message after @"+dest));
+			return;
+		}
+	}
+
+	// On test si c'est un commande
+	var command = testCommand(message.message);
+	if(command)
+	{
+		// On tente de l'executer
+		message = execCommand(command, message);
+		if(message.error)
+		{
+			// Si la commande n'est pas reconnu, on l'indique
+			console.log(user.name+' to '+this.name+': command error');
+			socket.emit('chat', message);
+			return;
+		}
+		else
+		{
+			// Si c'est une commande
+			message["command"] = command;
+			if(this.settings.dices3D)
+			{
+				if(command == '/roll')
+				{
+					var colors = ['#001F3F', '#0074D9', '#7FDBFF', '#39CCCC', '#3D9970', '#2ECC40', '#01FF70', '#FFDC00', '#FF851B', '#FF4136', '#85144B',  '#F012BE', '#B10DC9', '#DDDDDD'];
+					var to = (receiver) ? receiver.socket : this.name;
+					this.dices.roll(
+						user,
+						to,
+						diceArray(message.dice),
+						colors[Math.floor(colors.length * Math.random())],
+						this.diceStart,
+						this.diceUpdate,
+						function(to, room, user, data){
+							that.diceResult(to, room, user, data, receiver, message.dice);
+						},
+						this.diceEnd
+					);
+					return;
+				}
+			}
+		}
+	}
+	
+	// On envoie le message on bon destinataire
+	console.log(user.name+' to '+this.name+': '+msg);
+	if(receiver)
+	{
+		//TODO store private message
+		message["prive"] = receiver.name;
+		socket.emit(action, message);
+		if(receiver.name.toLowerCase() != user.name.toLowerCase())
+			io.to(receiver.socket).emit(action, message);
+	}
+	else
+	{
+		this.addMessage(message);
+		io.to(this.name).emit(action, message);
+	}
+}
+
+Room.prototype.diceStart = function(to, data)
+{
+	io.to(to).emit('dice start', data);
+};
+
+Room.prototype.diceUpdate = function(to, data)
+{
+	io.to(to).emit('dice update', data);
+};
+
+Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
+{
+	var message = {
+		id: messageid++,
+		command: '/roll',
+		dice: raw,
+		user: user,
+		message: '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+data.total+'</span> <span class="dice-detail mui-text-caption">detail '+data.details+'</span>'
+	};
+
+	if(to == room)
+	{
+		this.addMessage(message);
+		io.to(to).emit('chat', message);
+	}
+	else if(receiver)
+	{
+		message["prive"] = receiver.name;
+		socket.emit('chat', message);
+		if(receiver.name.toLowerCase() != user.name.toLowerCase())
+			io.to(receiver.socket).emit('chat', message);
+	}
+};
+
+Room.prototype.diceEnd = function(to, data)
+{
+	io.to(to).emit('dice end', data);
+};
+
 io.on('connection', function(socket)
 {
 	console.log('user '+socket.id+' connected');
@@ -101,69 +249,7 @@ io.on('connection', function(socket)
 		if(!room || !user)
 			return;
 
-		var message = {
-			id: id,
-			user: user,
-			message: msg
-		};
-
-		// On test si il y a une commande de type @Destinataire
-		var receiver = testReceiver(message);
-		if(receiver)
-		{
-			// On test si il y a un destinataire avec ce nom
-			var dest = receiver;
-			receiver = rooms[room].getUserByName(receiver);
-			if(!receiver)
-			{
-				// Si non, on previent l'utilisateur et stop ici
-				socket.emit('chat', chatError(message, dest+" is not in the room"));
-				return;
-			}
-			// On test si le message est vide
-			if(message.message == "")
-			{
-				// Si vide, on previent l'utilisateur et stop ici
-				socket.emit('chat', chatError(message, "Please add your message after @"+dest));
-				return;
-			}
-		}
-
-		// On test si c'est un commande
-		var command = testCommand(message.message);
-		if(command)
-		{
-			// On tente de l'executer
-			message = execCommand(command, message);
-			if(message.error)
-			{
-				// Si la commande n'est pas reconnu, on l'indique
-				console.log(user.name+' to '+room+': command error');
-				socket.emit('chat', message);
-				return;
-			}
-			else
-			{
-				// Si c'est un commande
-				message["command"] = command;
-			}
-		}
-		
-		// On envoie le message on bon destinataire
-		console.log(user.name+' to '+room+': '+msg);
-		if(receiver)
-		{
-			//TODO store private message
-			message["prive"] = receiver.name;
-			socket.emit(action, message);
-			if(receiver.name.toLowerCase() != user.name.toLowerCase())
-				io.to(receiver.socket).emit(action, message);
-		}
-		else
-		{
-			rooms[room].addMessage(message);
-			io.to(room).emit(action, message);
-		}
+		rooms[room].parseMessage(user, socket, id, msg, action);
 	}
 	
 	socket.on('chat', function(msg){
@@ -317,7 +403,7 @@ io.on('connection', function(socket)
 		// On notifie que la connection s'est bien passé
 		socket.emit('login', { 
 			succes: true,
-			room: rooms[room],
+			room: rooms[room].getSocket(),
 			user: user
 		});
 	});
@@ -353,7 +439,7 @@ io.on('connection', function(socket)
 		// On notifie que la connection s'est bien passé
 		socket.emit('login', { 
 			succes: true,
-			room: rooms[room],
+			room: rooms[room].getSocket(),
 			user: user
 		});
 	});
@@ -407,6 +493,23 @@ function commandDice(message)
 	message.message = '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
 
 	return message;
+}
+
+function diceArray(dice)
+{
+	var ds = dice.split(' ').join('+').split('+');
+	var dices = [];
+	for(var i = 0; i < ds.length; i++)
+	{
+		var d = ds[i].split('d');
+		if(d[0] == '') 
+			d[0] = 1;
+		var l = parseInt(d[0], 10);
+		for(var j = 0; j < l; j++)
+			dices.push('d'+d[1]);
+	}
+
+	return dices;
 }
 
 function execCommand(command, message)

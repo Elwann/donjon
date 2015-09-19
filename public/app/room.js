@@ -5,6 +5,7 @@ function Room(socket, name, user, users, messages)
 	this.user = user;
 
 	this.dices = new Dices(this);
+	this.dices3D = new Dices3D(this, window.innerWidth, window.innerHeight);
 	this.users = new Users(this, users);
 	this.images = new Images(this);
 	this.chat = new Chat(this, messages);
@@ -33,7 +34,12 @@ Room.prototype.init = function(users)
 		e.preventDefault();
 		Cookies.remove('login');
 		that.destroy();		
-		window.location.href = window.location.href; 
+		window.location.href = window.location.href;
+	});
+
+	this.socket.on('disconnect', function(){
+		that.destroy();		
+		window.location.href = window.location.href;
 	});
 };
 
