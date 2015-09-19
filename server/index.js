@@ -160,7 +160,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 				{
 					var colors = ['#001F3F', '#0074D9', '#7FDBFF', '#39CCCC', '#3D9970', '#2ECC40', '#01FF70', '#FFDC00', '#FF851B', '#FF4136', '#85144B',  '#F012BE', '#B10DC9', '#DDDDDD'];
 					var to = (receiver) ? receiver.socket : this.name;
-					this.dices.roll(
+					if(!this.dices.roll(
 						user,
 						to,
 						diceArray(message.dice),
@@ -170,8 +170,11 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 						function(to, room, user, data){
 							that.diceResult(to, room, user, data, receiver, message.dice);
 						},
-						this.diceEnd
-					);
+						this.diceEnd))
+					{
+						socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
+					}
+					
 					return;
 				}
 			}

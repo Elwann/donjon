@@ -280,6 +280,7 @@ function Dice3D(id, type, color, rolls)
 
 	this.stoped = false;
 	this.timestop = 0;
+	this.timestart = (new Date).getTime();
 
 	var from = Math.floor(rnd() * 4);
 
@@ -341,26 +342,34 @@ Dice3D.prototype.check = function()
 	if (this.stopped) return true;
 
 	var res = false;
-	var e = 8;
+	var e = 10;
 	var a = this.body.angularVelocity
 	var v = this.body.velocity;
 	var time = (new Date()).getTime();
 
-	if (Math.abs(a.x) < e && Math.abs(a.y) < e && Math.abs(a.z) < e && Math.abs(v.x) < e && Math.abs(v.y) < e && Math.abs(v.z) < e)
+	if(time - this.timestart < 10000)
 	{
-		if(this.timestopped != 0){
-			if (time - this.timestopped > 50) {
-				this.stopped = true;
-				res = true;
+		if (Math.abs(a.x) < e && Math.abs(a.y) < e && Math.abs(a.z) < e && Math.abs(v.x) < e && Math.abs(v.y) < e && Math.abs(v.z) < e)
+		{
+			if(this.timestopped != 0){
+				if (time - this.timestopped > 100) {
+					this.stopped = true;
+					res = true;
+				}
+			} else {
+				this.timestopped = (new Date()).getTime();
+				res = false;
 			}
-		} else {
-			this.timestopped = (new Date()).getTime();
-			res = false;
+		}
+		else
+		{
+			this.timestopped = 0;
 		}
 	}
 	else
 	{
-		this.timestopped = 0;
+		this.stopped = true;
+		res = true;
 	}
 
 	return res;
@@ -369,12 +378,15 @@ Dice3D.prototype.check = function()
 Dice3D.prototype.result = function()
 {
 	var index = -1;
-	for (var i = 0, length = this.body.shape.faceNormals.length; i < length; i++)
+	var distance = 999999;
+
+	for (var i = 0, length = (this.type == 'd10' || this.type == 'd100') ? 10 : this.body.shape.faceNormals.length ; i < length; i++)
 	{
-		if(new CANNON.Vec3(0, 0, this.top).almostEquals(this.body.quaternion.vmult(this.body.shape.faceNormals[i]), 0.1))
+		var dist = new CANNON.Vec3(0, 0, this.top).distanceTo(this.body.quaternion.vmult(this.body.shape.faceNormals[i]));
+		if(dist < distance)
 		{
 			index = i+1;
-			break;
+			distance = dist;
 		}
 	}
 
@@ -476,9 +488,12 @@ Dices3D.prototype.loop = function()
 Dices3D.prototype.roll = function(user, to, dices, color, callbackStart, callbackUpdate, callbackResult, callbackEnd)
 {
 	var that = this;
+	if(dices.length > 20) return false;
 	this.rolls.push(new Rolls3D(user, to, dices, color, that, callbackStart, callbackUpdate, callbackResult, callbackEnd));
 	if(this.timer == null)
 		this.timer = setTimeout(function(){ that.loop(); }, 1000/30);
+
+	return true;
 };
 
 Dices3D.prototype.update = function()
