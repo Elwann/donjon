@@ -163,7 +163,7 @@ function Rolls3D(user, to, rolls, color, box, callbackStart, callbackUpdate, cal
 			r.push({id: this.roll('d10'), type: 'd10', color: color});
 	}
 
-	callbackStart(this.to, r);
+	callbackStart(this.to, this.box.room, r);
 }
 
 Rolls3D.prototype.update = function()
@@ -190,7 +190,7 @@ Rolls3D.prototype.update = function()
 
 		if(Object.keys(diceUpdate).length > 0)
 		{
-			this.callbackUpdate(this.to, diceUpdate);
+			this.callbackUpdate(this.to, this.box.room, diceUpdate);
 		} else {
 			this.check();
 			this.endroll = (new Date).getTime();
@@ -246,7 +246,7 @@ Rolls3D.prototype.remove = function()
 		this.dices[i].remove();
 	}
 
-	this.callbackEnd(this.to, r);
+	this.callbackEnd(this.to, this.box.room, r);
 	var index = this.box.rolls.indexOf(this);
 	if(index >= 0)
 		this.box.rolls.splice(index, 1);

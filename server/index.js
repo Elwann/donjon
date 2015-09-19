@@ -172,12 +172,11 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 							to,
 							diceArray(message.dice),
 							colors[Math.floor(colors.length * Math.random())],
-							this.diceStart,
-							this.diceUpdate,
-							function(to, room, user, data){
-								that.diceResult(to, room, user, data, receiver, message.dice);
-							},
-							this.diceEnd))
+							function(to, room, data){ that.diceStart(to, room, data, user); },
+							function(to, room, data){ that.diceUpdate(to, room, data, user); },
+							function(to, room, user, data){ that.diceResult(to, room, user, data, receiver, message.dice); },
+							function(to, room, data){ that.diceEnd(to, room, data, user); }
+						))
 						{
 							socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
 						}
@@ -206,14 +205,26 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 	}
 }
 
-Room.prototype.diceStart = function(to, room, data)
+Room.prototype.diceStart = function(to, room, data, user)
 {
-	io.to(to).emit('dice start', data);
+	if(to == room) {
+		io.to(to).emit('dice start', data);
+	} else {
+		io.to(user.socket).emit('dice start', data);
+		if(to != user.socket)
+			io.to(to).emit('dice start', data);
+	}
 };
 
-Room.prototype.diceUpdate = function(to, room, data)
+Room.prototype.diceUpdate = function(to, room, data, user)
 {
-	io.to(to).emit('dice update', data);
+	if(to == room) {
+		io.to(to).emit('dice update', data);
+	} else {
+		io.to(user.socket).emit('dice update', data);
+		if(to != user.socket)
+			io.to(to).emit('dice update', data);
+	}
 };
 
 Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
@@ -234,15 +245,21 @@ Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
 	else if(receiver)
 	{
 		message["prive"] = receiver.name;
-		io.to(to).emit('chat', message);
+		io.to(user.socket).emit('chat', message);
 		if(receiver.name.toLowerCase() != user.name.toLowerCase())
 			io.to(receiver.socket).emit('chat', message);
 	}
 };
 
-Room.prototype.diceEnd = function(to, room, data)
+Room.prototype.diceEnd = function(to, room, data, user)
 {
-	io.to(to).emit('dice end', data);
+	if(to == room) {
+		io.to(to).emit('dice end', data);
+	} else {
+		io.to(user.socket).emit('dice end', data);
+		if(to != user.socket)
+			io.to(to).emit('dice end', data);
+	}
 };
 
 io.on('connection', function(socket)
