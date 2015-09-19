@@ -158,24 +158,32 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 			{
 				if(command == '/roll')
 				{
-					var colors = ['#001F3F', '#0074D9', '#7FDBFF', '#39CCCC', '#3D9970', '#2ECC40', '#01FF70', '#FFDC00', '#FF851B', '#FF4136', '#85144B',  '#F012BE', '#B10DC9', '#DDDDDD'];
-					var to = (receiver) ? receiver.socket : this.name;
-					if(!this.dices.roll(
-						user,
-						to,
-						diceArray(message.dice),
-						colors[Math.floor(colors.length * Math.random())],
-						this.diceStart,
-						this.diceUpdate,
-						function(to, room, user, data){
-							that.diceResult(to, room, user, data, receiver, message.dice);
-						},
-						this.diceEnd))
-					{
-						socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
+					var d = diceArray(message.dice);
+					var exist = false;
+					for(var i = 0; i < d.length; i++){
+						exist = (['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].indexOf(d[i]) >= 0);
 					}
-					
-					return;
+
+					if(exist){
+						var colors = ['#001F3F', '#0074D9', '#7FDBFF', '#39CCCC', '#3D9970', '#2ECC40', '#01FF70', '#FFDC00', '#FF851B', '#FF4136', '#85144B',  '#F012BE', '#B10DC9', '#DDDDDD'];
+						var to = (receiver) ? receiver.socket : this.name;
+						if(!this.dices.roll(
+							user,
+							to,
+							diceArray(message.dice),
+							colors[Math.floor(colors.length * Math.random())],
+							this.diceStart,
+							this.diceUpdate,
+							function(to, room, user, data){
+								that.diceResult(to, room, user, data, receiver, message.dice);
+							},
+							this.diceEnd))
+						{
+							socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
+						}
+						
+						return;
+					}
 				}
 			}
 		}
@@ -198,12 +206,12 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 	}
 }
 
-Room.prototype.diceStart = function(to, data)
+Room.prototype.diceStart = function(to, room, data)
 {
 	io.to(to).emit('dice start', data);
 };
 
-Room.prototype.diceUpdate = function(to, data)
+Room.prototype.diceUpdate = function(to, room, data)
 {
 	io.to(to).emit('dice update', data);
 };
@@ -226,13 +234,13 @@ Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
 	else if(receiver)
 	{
 		message["prive"] = receiver.name;
-		socket.emit('chat', message);
+		io.to(to).emit('chat', message);
 		if(receiver.name.toLowerCase() != user.name.toLowerCase())
 			io.to(receiver.socket).emit('chat', message);
 	}
 };
 
-Room.prototype.diceEnd = function(to, data)
+Room.prototype.diceEnd = function(to, room, data)
 {
 	io.to(to).emit('dice end', data);
 };
