@@ -214,7 +214,7 @@ Music.prototype.init = function()
 			$('.music-selector').fadeOut(300);
 			if(that.room.user.admin){
 				var songs = [];
-				$(this).next('ul').find('.song').each(function(){
+				$(this).next('input').next('label').next('ul').find('.song').each(function(){
 					songs.push($(this).attr('data-song'));
 				});
 
