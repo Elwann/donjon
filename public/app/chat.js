@@ -74,7 +74,7 @@ Chat.prototype.showCommand = function(data)
 Chat.prototype.showError = function(data)
 {
 	data.user.name = "error";
-	this.$messages.append($('<li id="msgbox-'+(++this.msgbox)+'" class="message error me">').html(data.message));
+	this.$messages.append($('<li id="msgbox-'+(++this.msgbox)+'" class="message '+data.error+' me">').html(data.message));
 	this.addMessage(data, false);
 	this.$content.scrollTop(this.$content[0].scrollHeight);
 	return;

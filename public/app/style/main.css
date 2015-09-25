@@ -237,6 +237,14 @@ footer #chat button {
 #messages .message.error:before {
   content: none;
 }
+#messages .message.warning {
+  color: #998400;
+  background: #fff8cc;
+}
+#messages .message.warning:after,
+#messages .message.warning:before {
+  content: none;
+}
 #messages .message.prive {
   opacity: 0.5;
 }

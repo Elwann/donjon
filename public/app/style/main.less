@@ -318,6 +318,14 @@ footer{
 			}
 		}
 
+		&.warning{
+			color: darken(@yellow, 20%);
+			background: lighten(@yellow, 40%);
+			&:after, &:before {
+				content: none;
+			}
+		}
+
 		&.prive{
 			opacity: 0.5;
 			&:hover{

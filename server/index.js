@@ -540,12 +540,35 @@ function diceArray(dice)
 	return dices;
 }
 
+function commandHelp(message)
+{
+	var msg = '';
+
+	msg += '@&lt;name&gt; &lt;message or command&gt;';
+	msg += '<br>';
+	msg += '/roll &lt;dice(s) to throw&gt;';
+
+	if(message.user.admin){
+		msg += '<br>';
+		msg += '/token &lt;user&gt; &lt;red|blue|black&gt; &lt;nombre&gt;';
+	}
+
+	return chatError(message, msg, "warning");
+}
+
+function commandToken(message)
+{
+	return message;
+}
+
 function execCommand(command, message)
 {
 	message.message = message.message.replace(command+" ", "");
 
 	switch(command){
+		case "/help": return commandHelp(message); break;
 		case "/roll": return commandDice(message); break;
+		case "/token": return commandToken(message); break;
 		default: return chatError(message, "Unknown command");
 	}
 }
@@ -573,9 +596,10 @@ function testReceiver(message)
 	return receiver;
 }
 
-function chatError(message, error)
+function chatError(message, error, type)
 {
+	type = type || "error";
 	message.message = error; 
-	message["error"] = true; 
+	message["error"] = type; 
 	return message;
 }
