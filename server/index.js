@@ -11,9 +11,28 @@ function User(id, socket, name, admin)
 	this.id = id;
 	this.socket = socket;
 	this.name = name;
+	this.tokens = {};
 	this.admin = admin || false;
 	this.connected = true;
 }
+
+User.prototype.addToken = function(token, number)
+{
+	if(this.tokens[token]){
+		this.tokens[token] += parseInt(number, 10);
+	} else {
+		this.tokens[token] = parseInt(number, 10);
+	}
+};
+
+User.prototype.removeToken = function(token)
+{
+	if(this.tokens[token]){
+		this.tokens[token] = parseInt(this.tokens[token], 10) - 1;
+		if(this.tokens[token] <= 0)
+			delete this.tokens[token];
+	}
+};
 
 function Room(name, admin)
 {
@@ -116,7 +135,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 	};
 
 	// On test si il y a une commande de type @Destinataire
-	var receiver = testReceiver(message);
+	var receiver = this.testReceiver(message);
 	if(receiver)
 	{
 		// On test si il y a un destinataire avec ce nom
@@ -138,11 +157,11 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 	}
 
 	// On test si c'est un commande
-	var command = testCommand(message.message);
+	var command = this.testCommand(message.message);
 	if(command)
 	{
 		// On tente de l'executer
-		message = execCommand(command, message);
+		message = this.execCommand(user, command, message);
 		if(message.error)
 		{
 			// Si la commande n'est pas reconnu, on l'indique
@@ -158,7 +177,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 			{
 				if(command == '/roll')
 				{
-					var d = diceArray(message.dice);
+					var d = that.diceArray(message.dice);
 					var exist = false;
 					for(var i = 0; i < d.length; i++){
 						exist = (['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].indexOf(d[i]) >= 0);
@@ -170,7 +189,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 						if(!this.dices.roll(
 							user,
 							to,
-							diceArray(message.dice),
+							that.diceArray(message.dice),
 							colors[Math.floor(colors.length * Math.random())],
 							function(to, room, data){ that.diceStart(to, room, data, user); },
 							function(to, room, data){ that.diceUpdate(to, room, data, user); },
@@ -187,6 +206,9 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 			}
 		}
 	}
+
+	if(message.stop)
+		return;
 	
 	// On envoie le message on bon destinataire
 	console.log(user.name+' to '+this.name+': '+msg);
@@ -261,6 +283,134 @@ Room.prototype.diceEnd = function(to, room, data, user)
 			io.to(to).emit('dice end', data);
 	}
 };
+
+Room.prototype.commandDice = function(message)
+{
+	var raw = message.message;
+	var diceroll = message.message;
+
+	if(raw.indexOf('d') < 0)
+	{
+		return chatError(message, "Not a valid dice");
+	}
+
+	function rollDice(match, p1, p2, offset, string)
+	{
+		p1 = p1 || 1;
+
+		var calc = [];
+		for(var i = 0; i < p1; i++){
+			calc.push(Math.ceil(Math.random()*p2));
+		}
+
+		if(calc.length > 1){
+			return ' ( ' + calc.join(" + ") + ' ) ';
+		} else {
+			return ' ' + calc[0] + ' ';
+		}
+	}
+
+	var re = /([0-9]*)d([0-9]+)/ig;
+
+	var diceroll = diceroll.replace(re, rollDice);
+	var total = diceroll;
+
+	message["dice"] = message.message;
+	message.message = '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
+
+	return message;
+}
+
+Room.prototype.diceArray = function(dice)
+{
+	var ds = dice.split(' ').join('+').split('+');
+	var dices = [];
+	for(var i = 0; i < ds.length; i++)
+	{
+		var d = ds[i].split('d');
+		if(d[0] == '') 
+			d[0] = 1;
+		var l = parseInt(d[0], 10);
+		for(var j = 0; j < l; j++)
+			dices.push('d'+d[1]);
+	}
+
+	return dices;
+}
+
+Room.prototype.commandHelp = function(message)
+{
+	var msg = '';
+
+	msg += '@&lt;name&gt; &lt;message or command&gt;';
+	msg += '<br>';
+	msg += '/roll &lt;dice(s) to throw&gt;';
+
+	if(message.user.admin){
+		msg += '<br>';
+		msg += '/token &lt;user&gt; &lt;red|blue|black&gt; &lt;nombre&gt;';
+	}
+
+	return chatError(message, msg, "warning");
+}
+
+Room.prototype.commandToken = function(user, message)
+{
+	if(!user) return;
+	if(!user.admin) return chatError(message, "Token: You need to be admin");
+
+	var msg = message.message.split(" ");
+
+	if(msg.length < 2) return chatError(message, "Token: Not enough parameters");
+
+	var u = this.getUserByName(msg[0]);
+	if(!u) return chatError(message, "Token: Unknown user");
+
+	var number = 1;
+	if(msg.length == 3) number = msg[2];
+
+	u.addToken(msg[1], number);
+	io.to(this.name).emit('token give', u);
+
+	message.stop = true;
+
+	return message;
+}
+
+Room.prototype.execCommand = function(user, command, message)
+{
+	message.message = message.message.replace(command+" ", "");
+
+	switch(command){
+		case "/help": return this.commandHelp(message); break;
+		case "/roll": return this.commandDice(message); break;
+		case "/token": return this.commandToken(user, message); break;
+		default: return chatError(message, "Unknown command");
+	}
+}
+
+Room.prototype.testCommand = function(message)
+{
+	if(message.indexOf("/") != 0)
+		return false;
+
+	var msg = message.split(" ");
+	var command = msg.shift();
+
+	return command;
+}
+
+Room.prototype.testReceiver = function(message)
+{
+	if(message.message.indexOf("@") != 0)
+		return false;
+
+	message.message = message.message.split(" ");
+	var receiver = message.message.shift().replace("@", "");
+	message.message = message.message.join(" ");
+
+	return receiver;
+}
 
 io.on('connection', function(socket)
 {
@@ -388,6 +538,18 @@ io.on('connection', function(socket)
 	});
 
 	//
+	// Token
+	//
+	socket.on('token use', function(data)
+	{
+		if(!room || !user)
+			return;
+
+		user.removeToken(data);
+		io.to(room).emit('token use', user);
+	});
+
+	//
 	// Connection
 	//
 	socket.on('room join', function(data)
@@ -485,116 +647,6 @@ io.on('connection', function(socket)
 		console.log('user '+user.name+' disconnected from room '+room);
 	});
 });
-
-function commandDice(message)
-{
-	var raw = message.message;
-	var diceroll = message.message;
-
-	if(raw.indexOf('d') < 0)
-	{
-		return chatError(message, "Not a valid dice");
-	}
-
-	function rollDice(match, p1, p2, offset, string)
-	{
-		p1 = p1 || 1;
-
-		var calc = [];
-		for(var i = 0; i < p1; i++){
-			calc.push(Math.ceil(Math.random()*p2));
-		}
-
-		if(calc.length > 1){
-			return ' ( ' + calc.join(" + ") + ' ) ';
-		} else {
-			return ' ' + calc[0] + ' ';
-		}
-	}
-
-	var re = /([0-9]*)d([0-9]+)/ig;
-
-	var diceroll = diceroll.replace(re, rollDice);
-	var total = diceroll;
-
-	message["dice"] = message.message;
-	message.message = '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
-
-	return message;
-}
-
-function diceArray(dice)
-{
-	var ds = dice.split(' ').join('+').split('+');
-	var dices = [];
-	for(var i = 0; i < ds.length; i++)
-	{
-		var d = ds[i].split('d');
-		if(d[0] == '') 
-			d[0] = 1;
-		var l = parseInt(d[0], 10);
-		for(var j = 0; j < l; j++)
-			dices.push('d'+d[1]);
-	}
-
-	return dices;
-}
-
-function commandHelp(message)
-{
-	var msg = '';
-
-	msg += '@&lt;name&gt; &lt;message or command&gt;';
-	msg += '<br>';
-	msg += '/roll &lt;dice(s) to throw&gt;';
-
-	if(message.user.admin){
-		msg += '<br>';
-		msg += '/token &lt;user&gt; &lt;red|blue|black&gt; &lt;nombre&gt;';
-	}
-
-	return chatError(message, msg, "warning");
-}
-
-function commandToken(message)
-{
-	return message;
-}
-
-function execCommand(command, message)
-{
-	message.message = message.message.replace(command+" ", "");
-
-	switch(command){
-		case "/help": return commandHelp(message); break;
-		case "/roll": return commandDice(message); break;
-		case "/token": return commandToken(message); break;
-		default: return chatError(message, "Unknown command");
-	}
-}
-
-function testCommand(message)
-{
-	if(message.indexOf("/") != 0)
-		return false;
-
-	var msg = message.split(" ");
-	var command = msg.shift();
-
-	return command;
-}
-
-function testReceiver(message)
-{
-	if(message.message.indexOf("@") != 0)
-		return false;
-
-	message.message = message.message.split(" ");
-	var receiver = message.message.shift().replace("@", "");
-	message.message = message.message.join(" ");
-
-	return receiver;
-}
 
 function chatError(message, error, type)
 {
