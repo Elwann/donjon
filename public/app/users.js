@@ -28,6 +28,7 @@ Users.prototype.showUser = function(user)
 			'<div class="title"><strong>Characteristics</strong></div>' +
 			'<div class="user-health noselect" data-carac="health"><i class="fa fa-heart"></i> <span>8</span></div>' +
 			'<div class="user-defense noselect" data-carac="defense"><i class="fa fa-shield"></i> <span>8</span></div>' +
+			'<div class="title"><strong>Tokens</strong></div>' +
 			'<div class="user-tokens"><span class="token blue">4</span></div>' +
 		'</div>';
 
@@ -66,9 +67,16 @@ Users.prototype.refreshTokens = function(user)
 	if(u){
 		u.tokens = user.tokens;
 		var ts = $("#user-"+user.id+" .user-tokens");
-		ts.html("");
-		for(var t in u.tokens){
-			ts.append('<span class="token '+t+'" data-token="'+t+'">'+u.tokens[t]+'</span>');
+		if(u.tokens.length > 0)
+		{
+			ts.html("");
+			for(var t in u.tokens){
+				ts.append('<div class="token '+t+'" data-token="'+t+'">'+u.tokens[t]+'</div>');
+			}
+		} 
+		else
+		{
+			ts.html('<div class="notoken">No tokens</div>');
 		}
 	}
 };

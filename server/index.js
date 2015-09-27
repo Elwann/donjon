@@ -567,11 +567,12 @@ io.on('connection', function(socket)
 		}
 
 		// Si l'user existe, on exit
-		if(rooms[data.room].getUserByName(data.user))
+		user = rooms[data.room].getUserByName(data.user);
+		if(user && user.connected)
 		{
 			socket.emit('login', { 
 				succes: false, 
-				error: 'User '+data.user+' exist. <br>Please use another name.'
+				error: 'User '+data.user+' already connected. <br>Please use another name (or wait if you just had a disconnection).'
 			});
 			return;
 		}
@@ -580,10 +581,15 @@ io.on('connection', function(socket)
 
 		// On enregiste les valeurs
 		room = data.room;
-		user = new User(userid++, socket.id, data.user, rooms[room].isAdmin(data.user));
-		// On s'ajoute a la room
-		rooms[room].addUser(user);
 
+		if(user){
+			user.connected = true;
+		} else {
+			user = new User(userid++, socket.id, data.user, rooms[room].isAdmin(data.user));
+			// On s'ajoute a la room
+			rooms[room].addUser(user);
+		}
+		
 		// On ajoute la socket a sa room
 		socket.join(room);
 
@@ -642,7 +648,8 @@ io.on('connection', function(socket)
 			return;
 		}
 		
-		rooms[room].removeUser(user);
+		//rooms[room].removeUser(user);
+		user.connected = false;
 		io.to(room).emit('user logout', user);
 		console.log('user '+user.name+' disconnected from room '+room);
 	});
