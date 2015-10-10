@@ -29,7 +29,7 @@ Users.prototype.showUser = function(user)
 			'<div class="user-health noselect" data-carac="health"><i class="fa fa-heart"></i> <span>8</span></div>' +
 			'<div class="user-defense noselect" data-carac="defense"><i class="fa fa-shield"></i> <span>8</span></div>' +
 			'<div class="title"><strong>Tokens</strong></div>' +
-			'<div class="user-tokens"><span class="token blue">4</span></div>' +
+			'<div class="user-tokens"></div>' +
 		'</div>';
 
 	var $user = '<li class="'+c+'" id="user-'+user.id+'">'+user.name+'<span class="user-dice"></span>'+$caracs+'</li>';
@@ -67,16 +67,16 @@ Users.prototype.refreshTokens = function(user)
 	if(u){
 		u.tokens = user.tokens;
 		var ts = $("#user-"+user.id+" .user-tokens");
-		if(u.tokens.length > 0)
-		{
-			ts.html("");
-			for(var t in u.tokens){
-				ts.append('<div class="token '+t+'" data-token="'+t+'">'+u.tokens[t]+'</div>');
-			}
-		} 
-		else
-		{
+		var tok = "";
+
+		for(var t in u.tokens){
+			tok += '<div class="token '+t+'" data-user="'+user.id+'" data-token="'+t+'">'+u.tokens[t]+'</div>';
+		}
+
+		if(tok == ""){
 			ts.html('<div class="notoken">No tokens</div>');
+		} else {
+			ts.html(tok);
 		}
 	}
 };
@@ -102,8 +102,13 @@ Users.prototype.init = function(users)
 
 	// Setup users
 	for(var i = 0, length = users.length; i < length; i++){
-		this.addUser(users[i]);
-		this.refreshTokens(users[i]);
+		var user = users[i];
+		if(user.name.toLowerCase() == this.room.user.name.toLowerCase()){
+			user = this.room.user;
+		}
+
+		this.addUser(user);
+		this.refreshTokens(user);
 	}
 
 	// Users connexions
@@ -131,12 +136,19 @@ Users.prototype.init = function(users)
 
 	this.room.socket.on('token use', function(data, token){
 		that.refreshTokens(data);
+		//TODO: Token use popin
 	});
 
-	console.log('#user-'+this.room.user.id+' .token');
-	$('body').on('click.token', '#user-'+this.room.user.id+' .token', function(){
-		that.room.socket.emit('token use', $(this).data('token'));		
-	});
+	// TODO Admin acces
+	if(this.room.user.admin){
+		$('body').on('click.token', '#users .user .token', function(){
+			that.room.socket.emit('token use', $(this).data('user'), $(this).data('token'));	
+		});
+	} else {
+		$('body').on('click.token', '#user-'+this.room.user.id+' .token', function(){
+			that.room.socket.emit('token use', this.room.user.id, $(this).data('token'));		
+		});
+	}
 };
 
 Users.prototype.destroy = function()

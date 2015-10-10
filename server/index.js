@@ -65,6 +65,17 @@ Room.prototype.isAdmin = function(name)
 	return (name == this.admin.name);
 };
 
+Room.prototype.getUserById = function(id)
+{
+	for (var i = this.users.length - 1; i >= 0; i--)
+	{
+		if(this.users[i].id == id)
+			return this.users[i];
+	}
+
+	return false;
+};
+
 Room.prototype.getUserByName = function(name)
 {
 	for (var i = this.users.length - 1; i >= 0; i--)
@@ -540,13 +551,21 @@ io.on('connection', function(socket)
 	//
 	// Token
 	//
-	socket.on('token use', function(data)
+	socket.on('token use', function(id, data)
 	{
 		if(!room || !user)
 			return;
 
-		user.removeToken(data);
-		io.to(room).emit('token use', user);
+		var u = rooms[room].getUserById(id);
+		if(u){
+			if(u == user){
+				u.removeToken(data);
+			} else if(user.admin){
+				u.removeToken(data);
+			}
+
+			io.to(room).emit('token use', u, data);
+		}
 	});
 
 	//
