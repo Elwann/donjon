@@ -39,7 +39,7 @@ Dice2D.prototype.update = function(values)
 	this.position.x = values[0] * this.box.w / 1000 / 2 + this.box.cw;
 	this.position.y = this.box.ch - values[1] * this.box.h / 1000 / 2;
 	this.position.z = values[2];
-	this.rotation = (2 * Math.acos(values[3]) + Math.PI) * 180 / Math.PI;
+	this.rotation = (((2 * Math.acos(values[3])) * 180 / Math.PI) + 180) % 360;
 
 	this.transform.css("transform", "translate3d("+this.position.x+"px, "+this.position.y+"px, "+this.position.z+"px) rotate("+this.rotation+"deg)");
 	if(Date.now() - this.time > 166){
