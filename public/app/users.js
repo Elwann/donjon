@@ -60,6 +60,8 @@ Users.prototype.showUser = function(user)
 	} else {
 		this.$users.append($user);
 	}
+
+	this.refreshTokens(user);
 };
 
 Users.prototype.addUser = function(user)
@@ -86,7 +88,7 @@ Users.prototype.removeUser = function(user)
 
 Users.prototype.refreshTokens = function(user)
 {
-	u = this.getUserByName(user.name);
+	u = this.getUserById(user.id);
 	if(u){
 		u.tokens = user.tokens;
 		var ts = $("#user-"+user.id+" .user-tokens");
@@ -246,20 +248,26 @@ Users.prototype.init = function(users)
 	this.room.socket.on('token use', function(data, token){
 		that.refreshTokens(data);
 		//TODO: Token use popin
+		//var token = $('<div class="overlay"></div>');
 	});
 
 	if(this.room.user.admin){
+		this.$users.on('mousedown.sortable', '.user-details', function(e){
+			e.preventDefault();
+			e.stopPropagation();
+		});
+
 		this.$users.on('mousedown.sortable', '.user', function(e){
 			e.preventDefault();
 			that.grab($(this), {x:e.pageX, y:e.pageY});
 		});
 
 		$('body').on('click.token', '#users .user .token', function(){
-			that.room.socket.emit('token use', $(this).data('user'), $(this).data('token'));	
+			that.room.socket.emit('token use', $(this).data('user'), $(this).data('token'));
 		});
 	} else {
 		$('body').on('click.token', '#user-'+this.room.user.id+' .token', function(){
-			that.room.socket.emit('token use', this.room.user.id, $(this).data('token'));		
+			that.room.socket.emit('token use', that.room.user.id, $(this).data('token'));
 		});
 	}
 
