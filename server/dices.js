@@ -141,6 +141,30 @@ function makeCollider(vertices, faces, radius) {
 	return new CANNON.ConvexPolyhedron(cv, cf);
 }
 
+function nextVector()
+{
+	var theta = Math.random() * 2 * Math.PI;
+	var rawX = Math.sin(theta);
+	var rawY = Math.cos(theta);
+	var z = Math.random() * 2 - 1;
+	var phi = Math.asin(z);
+	var scalar = Math.cos(phi);
+	var x = rawX*scalar;
+	var y = rawY*scalar;
+
+	return {x:x, y:y, z:z};
+}
+
+function nextQuaterion()
+{
+	var v = nextVector();
+	var theta = Math.random() * 2 * Math.PI;
+	var cosTheta = Math.cos(theta);
+	var sinTheta = Math.sin(theta);
+
+	return {x:v.x*sinTheta, y:v.y*sinTheta, z:v.z*sinTheta, w:cosTheta};
+}
+
 function Rolls3D(user, to, rolls, color, box, callbackStart, callbackUpdate, callbackResult, callbackEnd)
 {
 	this.user = user;
@@ -306,7 +330,7 @@ function Dice3D(id, type, color, rolls)
 		if(from == 3) x = this.rolls.box.w * 0.9;
 	}
 
-	this.rotation = {x: rnd() * 180, y: rnd() * 180, z: rnd() * 180, w: rnd() * 180};
+	this.rotation = nextQuaterion();
 	this.position = {
 		x: x,
 		y: y,
@@ -319,7 +343,7 @@ function Dice3D(id, type, color, rolls)
 	velocity.normalize();
 	velocity = velocity.mult(30 * rnd() + 30);
 
-	this.body.angularVelocity.set(velocity.x, velocity.y, velocity.z);
+	//this.body.angularVelocity.set(velocity.x, velocity.y, velocity.z);
 
 	velocity.normalize();
 	velocity = velocity.mult(1500 * rnd() + 1000);
