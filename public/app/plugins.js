@@ -168,3 +168,32 @@ jQuery.fn.putCursorAtEnd = function() {
   });
 
 };
+
+var hasWebGLSupport = (function(){
+	var support = false;
+	var tested = false;
+	return function(){
+		if(!tested){
+			var gl = null;
+			var canvas = document.createElement('canvas');
+			try { gl = canvas.getContext("webgl"); }
+			catch (x) { gl = null; }
+
+			if (gl == null) {
+				try { gl = canvas.getContext("experimental-webgl"); experimental = true; }
+				catch (x) { gl = null; }
+			}
+
+			if(gl == null || !window.WebGLRenderingContext){
+				support = false;
+			} else {
+				support = true;
+			}
+
+			canvas = null;
+			tested = true;
+		}
+
+		return support;
+	}
+})();

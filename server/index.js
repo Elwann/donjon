@@ -274,13 +274,17 @@ Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
 	{
 		this.addMessage(message);
 		io.to(to).emit('chat', message);
+		io.to(to).emit('dice result', data.dices);
 	}
 	else if(receiver)
 	{
 		message["prive"] = receiver.name;
 		io.to(user.socket).emit('chat', message);
-		if(receiver.name.toLowerCase() != user.name.toLowerCase())
+		io.to(user.socket).emit('dice result', data.dices);
+		if(receiver.name.toLowerCase() != user.name.toLowerCase()){
 			io.to(receiver.socket).emit('chat', message);
+			io.to(receiver.socket).emit('dice result', data.dices);
+		}
 	}
 };
 

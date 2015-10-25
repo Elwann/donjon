@@ -44,7 +44,7 @@
 			return;
 		}
 
-		room = new Room(socket, data.room.name, data.user, data.room.users, data.room.messages);
+		room = new Room(socket, data.room.name, data.user, data.room.users, data.room.messages, data.room.settings);
 		Cookies.set('login', data.room.name+'|'+data.user.name, { expires: 356 });
 
 		$(".login-wrapper").fadeOut(300);

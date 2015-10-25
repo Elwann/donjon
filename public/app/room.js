@@ -1,15 +1,20 @@
-function Room(socket, name, user, users, messages)
+function Room(socket, name, user, users, messages, options)
 {
 	this.socket = socket;
 	this.name = name;
 	this.user = user;
 
 	this.dices = new Dices(this);
-	this.dices3D = new Dices3D(this, window.innerWidth, window.innerHeight);
+	if(hasWebGLSupport()){
+		this.dice = new Dices3D(this, window.innerWidth, window.innerHeight);
+	} else {
+		this.dice = new Dices2D(this, window.innerWidth, window.innerHeight);
+	}
 	this.users = new Users(this, users);
 	this.images = new Images(this);
 	this.chat = new Chat(this, messages);
 	this.music = new Music(this);
+	this.options = options;
 
 	this.$roomName = $("#room-name");
 	this.$logout = $("#logout");

@@ -206,7 +206,8 @@ Rolls3D.prototype.check = function()
 {
 	this.result = {
 		total: 0,
-		details: []
+		details: [],
+		dices: {}
 	};
 
 	var i = 0;
@@ -217,9 +218,11 @@ Rolls3D.prototype.check = function()
 		{
 			var d100 = (dice.result() * 10) % 100;
 			var d10 = 0;
-			if(this.dices[i+1])
+			this.result.dices[dice.id] = v;
+			if(this.dices[i+1]){
 				d10 = this.dices[i+1].result() % 10;
-
+				this.result.dices[this.dices[i+1].id] = v;
+			}
 			var v = (d100 + d10 == 0) ? 100 : d100 + d10
 			this.result.total += v;
 			this.result.details.push(v);
@@ -230,6 +233,7 @@ Rolls3D.prototype.check = function()
 			var v = dice.result()
 			this.result.total += v;
 			this.result.details.push(v);
+			this.result.dices[dice.id] = v;
 			i++;
 		}
 	}

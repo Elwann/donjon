@@ -248,11 +248,8 @@ function Dice3D(id, type, color, box)
 	this.color = color;
 	this.transform;
 
-	this.position = {x: 0, y: 0, z: 0};
-	this.rotation = {x: 0, y: 0, z: 0, w: 0};
-
-	this.stoped = false;
-	this.timestop = 0;
+	//this.position = {x: 0, y: 0, z: 0};
+	//this.rotation = {x: 0, y: 0, z: 0, w: 0};
 
 	this.createMesh();
 
@@ -346,7 +343,6 @@ Dices3D.prototype.init = function()
 	this.renderer.shadowMapEnabled = true;
 	this.renderer.shadowMapSoft = true;
 	this.renderer.setClearColor(0x000000, 0);
-	//this.renderer.sortObjects = false;
 
 	this.dices = {};
 	this.scene = new THREE.Scene();
@@ -415,7 +411,7 @@ Dices3D.prototype.init = function()
 		color: 0x0000FF
 	});
 
-	this.desk = new THREE.Mesh(new THREE.PlaneGeometry(this.w * 2, this.h * 2, 1, 1), planeMaterial);
+	this.desk = new THREE.Mesh(new THREE.PlaneGeometry(this.w*2, this.h*2, 1, 1), planeMaterial);
 	this.desk.receiveShadow = true;
 	this.scene.add(this.desk);
 
@@ -427,14 +423,14 @@ Dices3D.prototype.init = function()
 
 	this.room.socket.on('dice update', function(data){
 		for(var i in data){
-			that.dices[i].update(data[i]);
+			if(that.dices[i]) that.dices[i].update(data[i]);
 		}
 		that.renderer.render(that.scene, that.camera);
 	});
 
 	this.room.socket.on('dice end', function(data){
 		for(var i = 0; i < data.length; i++){
-			that.dices[data[i]].remove();
+			if(that.dices[data[i]]) that.dices[data[i]].remove();
 		}
 		that.renderer.render(that.scene, that.camera);
 	});

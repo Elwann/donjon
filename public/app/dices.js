@@ -29,43 +29,6 @@ Dices.prototype.unload = function()
 	this.dices = [];
 };
 
-/*
-// Load dice for room in param
-Dices.prototype.load = function(roomName)
-{
-	this.unload();
-	var cookie = Cookies.get(roomName);
-	if(cookie){
-		var dices = cookie.split('|');
-		for (var i = dices.length - 1; i >= 0; i--) {
-			var dice = dices[i].split('#');
-			this.dices.push({
-				type: dice[0],
-				rolls: dice[1]
-			});
-		};
-
-		this.show(3);
-	}
-};
-
-// Save dices for room
-Dices.prototype.save = function(roomName)
-{
-	var dices = [];
-
-	for (var i = this.dices.length - 1; i >= 0; i--) {
-		dices.push(this.dices[i].type+"#"+this.dices[i].rolls);
-	}
-
-	if(dices.length > 0){
-		Cookies.set(roomName, dices.join('|'), { expires: 356 });
-	} else {
-		console.log("No dices to save");
-	}
-};
-*/
-
 // Show dices
 Dices.prototype.show = function()
 {
