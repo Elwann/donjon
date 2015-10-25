@@ -20,6 +20,24 @@ Users.prototype.getUserByName = function(name) {
 	return false;
 };
 
+Users.prototype.getUserById = function(id) {
+	for (var i = this.users.length - 1; i >= 0; i--) {
+		if(this.users[i].id == id)
+			return this.users[i];
+	}
+
+	return false;
+};
+
+Users.prototype.getIndexById = function(id) {
+	for (var i = this.users.length - 1; i >= 0; i--) {
+		if(this.users[i].id == id)
+			return i;
+	}
+
+	return -1;
+};
+
 Users.prototype.showUser = function(user)
 {
 	var c = "user";
@@ -58,7 +76,7 @@ Users.prototype.addUser = function(user)
 
 Users.prototype.removeUser = function(user)
 {
-	var index = this.users.indexOf(user);
+	var index = this.getIndexById(user.id);
 	if(index >= 0)
 		this.users.splice(index, 1);
 	
@@ -192,12 +210,14 @@ Users.prototype.init = function(users)
 	// Setup users
 	for(var i = 0, length = users.length; i < length; i++){
 		var user = users[i];
-		if(user.name.toLowerCase() == this.room.user.name.toLowerCase()){
-			user = this.room.user;
-		}
+		if(user.connected){
+			if(user.name.toLowerCase() == this.room.user.name.toLowerCase()){
+				user = this.room.user;
+			}
 
-		this.addUser(user);
-		this.refreshTokens(user);
+			this.addUser(user);
+			this.refreshTokens(user);
+		}
 	}
 
 	// Users connexions
