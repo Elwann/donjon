@@ -247,8 +247,17 @@ Users.prototype.init = function(users)
 
 	this.room.socket.on('token use', function(data, token){
 		that.refreshTokens(data);
-		//TODO: Token use popin
-		//var token = $('<div class="overlay"></div>');
+		var token = $(
+			'<div id="token-popin-'+data.id+'" class="before overlay centerer">'+
+				'<div class="popin centered mui-panel text-align-center">'+
+					'<h3>'+data.name+' use '+token+' token</h3>'+
+					'<div class="'+token+' token big">&nbsp;</div>'+
+				'</div>'+
+			'</div>');
+		$('body').append(token);
+		
+		token.delay(2000).fadeOut(300, function(){$("#token-popin-"+data.id).remove();});
+		setTimeout(function(){token.removeClass('before');});
 	});
 
 	if(this.room.user.admin){

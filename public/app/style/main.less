@@ -108,11 +108,19 @@ body, html{
 	background: rgba(0,0,0,0.9);
 	z-index: 1000;
 	overflow: auto;
+	perspective-origin: center center;
+	perspective: 700px;
+	opacity: 1;
+	transition: all 0.5s ease;
 
 	.popin{ 
 		max-width: 400px;
 		padding: 50px;
 		margin: 20px;
+		transition: all 0.7s ease;
+		transform: translate3d(0px, 0px, 0px);
+		perspective-origin: center center;
+		perspective: 500px;
 	}
 
 	.image{
@@ -123,6 +131,17 @@ body, html{
 			max-width: 100%;
 			max-height: 100%;
 		}
+	}
+
+	h3{
+		margin-top: 0;
+	}
+}
+
+.before.overlay{
+	opacity: 0;
+	.popin{
+		transform: translate3d(0px, 0px, 1000px);
 	}
 }
 
@@ -318,6 +337,7 @@ section.middle{
 	font-weight: bold;
 	border-radius: 9999px;
 	text-align: center;
+	transition: all 1s ease;
 	&:after{ content: " "; position: absolute; left: 0; top: 1px; width: 30px; height: 32px; border-radius: 9999px; z-index: -1; }
 	&.navy{ color: contrast(@navy, #111111); background: @navy; &:after{ background: shade(@navy, 20%); } }
 	&.blue{ color: contrast(@blue, #111111); background: @blue; &:after{ background: shade(@blue, 20%); } }
@@ -335,6 +355,14 @@ section.middle{
 	&.silver{ color: contrast(@silver, #111111); background: @silver; &:after{ background: shade(@silver, 20%); } }
 	&.grey{ color: contrast(@grey, #111111); background: @grey; &:after{ background: shade(@grey, 20%); } }
 	&.black{ color: contrast(@black, #111111); background: @black; &:after{ background: shade(@black, 20%); } }
+	&.big{ 
+		width: 120px; line-height: 120px; margin: 0; transform: translate3d(0px,0px,30px) rotateZ(15deg) rotateY(15deg);
+		&:after{ content: none; }
+	}
+}
+
+.before .token{
+	transform: translate3d(0px,0px,100px) rotateZ(-30deg) rotateY(180deg);
 }
 
 .notoken{
@@ -623,6 +651,7 @@ footer{
 //
 // Audio
 //
+
 .music-selector{
 	h4{
 		position: relative;
@@ -838,6 +867,10 @@ footer{
 
 .closable{
 	cursor: crosshair;
+}
+
+.text-align-center{
+	text-align: center;
 }
 
 @media screen and (max-width: 42em){
