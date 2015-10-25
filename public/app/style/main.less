@@ -33,11 +33,11 @@
 // Animations
 @keyframes fadein {
   from {
-    opacity: 0
+	opacity: 0
   }
 
   to { 
-    opacity: 1
+	opacity: 1
   }
 }
 
@@ -189,39 +189,41 @@ section.middle{
 	margin: 0;
 	list-style: none;
 	background: #e5e5e5;
+}
 
-	.user{
-		position: relative;
-		padding: 15px 10px;
-		border-bottom: 1px #f5f5f5 solid;
-		height: 51px;
-		cursor: pointer;
+.user-item{
+	position: relative;
+	padding: 15px 10px;
+	border-bottom: 1px #f5f5f5 solid;
+	height: 51px;
+	cursor: pointer;
+	background: #e5e5e5;
+	list-style: none;
 
-		&.admin{
-			color: @color;
-			&:hover .user-details{
-				display: none;
-			}
-		}
-
-		&.me{
-			background: #f5f5f5;
-		}
-
-		&.typing:after{
-			content: "\f27b";
-			display: inline-block;
-			margin-left: 5px;
-			font: normal normal normal 14px/1 FontAwesome;
-			font-size: inherit;
-			text-rendering: auto;
-			-webkit-font-smoothing: antialiased;
-			-moz-osx-font-smoothing: grayscale;
-		}
-
+	&.admin{
+		color: @color;
 		&:hover .user-details{
-			display: block;
+			display: none;
 		}
+	}
+
+	&.me{
+		background: #f5f5f5;
+	}
+
+	&.typing:after{
+		content: "\f27b";
+		display: inline-block;
+		margin-left: 5px;
+		font: normal normal normal 14px/1 FontAwesome;
+		font-size: inherit;
+		text-rendering: auto;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	&:hover .user-details{
+		display: block;
 	}
 }
 
@@ -681,13 +683,13 @@ footer{
 
 .music-selector-close{
 	position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 20px;
-    line-height: 40px;
-    width: 40px;
-    text-align: center;
-    color: #fff;
+	top: 0;
+	right: 0;
+	font-size: 20px;
+	line-height: 40px;
+	width: 40px;
+	text-align: center;
+	color: #fff;
 }
 
 .volume-controls{
@@ -772,7 +774,27 @@ footer{
 		display: block;
 	}
 
+	.user{
+		cursor: -webkit-grab;
+		cursor: -moz-grab;
+		cursor: -ms-grab;
+		cursor: grab;
+	}
 
+	.user.grabbing{
+		background: #ddd;
+	}
+
+	&.grabbing, &.grabbing *{
+		cursor: -webkit-grabbing !important;
+		cursor: -moz-grabbing !important;
+		cursor: -ms-grabbing !important;
+		cursor: grabbing !important;
+	}
+
+	&.grabbing #users .user .user-details{
+		display: none !important;
+	}
 }
 
 
@@ -801,12 +823,12 @@ footer{
 }
 
 .noselect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .closable{
