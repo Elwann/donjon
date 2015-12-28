@@ -367,14 +367,14 @@ Room.prototype.commandHelp = function(message)
 	}
 
 	return chatError(message, msg, "warning");
-}
+};	
 
 Room.prototype.commandToken = function(user, message)
 {
 	if(!user) return;
 	if(!user.admin) return chatError(message, "Token: You need to be admin");
 
-	var msg = message.message.split(" ");
+	var msg = message.message.match(/".+"|\S+/g).map(function(s, i){ return s.replace(/"/g, ""); }); // message.message.split(" ");
 
 	if(msg.length < 2) return chatError(message, "Token: Not enough parameters");
 
