@@ -13,7 +13,7 @@ function User(id, socket, name, admin)
 	this.name = name;
 	this.tokens = {};
 	this.admin = admin || false;
-	this.order = -1;
+	this.order = (this.admin) ? 0 : 1;
 	this.connected = true;
 }
 
@@ -368,7 +368,7 @@ Room.prototype.commandHelp = function(message)
 	}
 
 	return chatError(message, msg, "warning");
-};	
+};
 
 Room.prototype.commandToken = function(user, message)
 {

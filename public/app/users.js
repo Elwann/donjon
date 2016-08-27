@@ -289,7 +289,6 @@ Users.prototype.init = function(users)
 
 	// User order
 	this.room.socket.on('user order', function(data){
-		console.log(data);
 		that.sort(data);
 	});
 
