@@ -53,7 +53,7 @@ Users.prototype.showUser = function(user)
 			'<div class="user-tokens"></div>' +
 		'</div>';
 
-	var $user = '<li class="user-item '+c+'" id="user-'+user.id+'">'+user.name+'<span class="user-dice"></span>'+$caracs+'</li>';
+	var $user = '<li data-user="'+user.id+'" data-sort="'+user.order+'" class="user-item '+c+'" id="user-'+user.id+'">'+user.name+'<span class="user-dice"></span>'+$caracs+'</li>';
 
 	if(user.admin) {
 		this.$users.prepend($user);
@@ -81,7 +81,7 @@ Users.prototype.removeUser = function(user)
 	var index = this.getIndexById(user.id);
 	if(index >= 0)
 		this.users.splice(index, 1);
-	
+
 	$("#user-"+user.id).remove();
 	this.order();
 };
@@ -125,12 +125,12 @@ Users.prototype.grab = function(elem, position)
 {
 	if(this.grabbed !== null || !this.room.user.admin || elem.hasClass('admin'))
 		return;
-	
+
 	var self = this;
 	$('body').addClass('grabbing');
 	this.ghost = elem.clone()
 		.css({
-			position: "absolute", 
+			position: "absolute",
 			top: "0",
 			left: "0",
 			width: elem.outerWidth()+'px',
@@ -138,12 +138,12 @@ Users.prototype.grab = function(elem, position)
 		})
 		.appendTo('body');
 	this.grabbed = elem.addClass('grabbing');
-	
+
 	$('body').on('mouseup.sortable', function(e){
 		e.preventDefault();
-		self.release({x:e.pageX, y:e.pageY}); 
+		self.release({x:e.pageX, y:e.pageY});
 	});
-	
+
 	$('body').on('mousemove.sortable', function(e){
 		e.preventDefault();
 		self.grabbing({x:e.pageX, y:e.pageY});
@@ -154,10 +154,10 @@ Users.prototype.grabbing = function(position)
 {
 	if(this.grabbed === null)
 		return;
-	
+
 	var self = this;
 	this.ghost.css("transform", "translate("+position.x+"px, "+position.y+"px)");
-	
+
 	this.items.each(function(){
 		var $this = $(this);
 		if(!$this.hasClass('grabbing') && !$this.hasClass('admin')){
@@ -170,7 +170,7 @@ Users.prototype.grabbing = function(position)
 				} else {
 					self.grabbed.before($this);
 				}
-				
+
 				return;
 			}
 		}
@@ -181,28 +181,55 @@ Users.prototype.release = function()
 {
 	if(this.grabbed === null)
 		return;
-	
+
 	$('body').removeClass('grabbing');
 	this.grabbed.removeClass('grabbing');
 	this.grabbed = null;
 	this.ghost.remove();
 	this.ghost = null;
 	$('body').off('.sortable');
-	
-	this.order();
+
+	if(this.room.user.admin)
+		this.ordering();
 };
 
 Users.prototype.order = function()
 {
-  this.items = this.$users.find('.user');
-  this.items.each(function(index){
-	  $(this).data('sort', index);
-  });
+	var that = this;
+	this.items = this.$users.find('.user').sort(function(a, b){
+		return parseInt($(a).data('sort'), 10) - parseInt($(b).data('sort'), 10);
+	}).each(function(index){
+		var order = $(this).data('sort');
+		that.$users.append($(this));
+	});
+};
+
+Users.prototype.ordering = function()
+{
+	var data = {};
+	this.items = this.$users.find('.user');
+	this.items.each(function(index){
+		$(this).data('sort', index);
+		var id = $(this).data('user');
+		if(id && index)
+			data[id] = index;
+	});
+
+	this.room.socket.emit('user order', data);
 };
 
 Users.prototype.sort = function(list)
 {
-	
+	for(var l in list){
+		l = parseInt(l, 10);
+		var user = this.getUserById(l);
+		if(user){
+			user.order = parseInt(list[l], 10);
+			$("#user-"+l).data('sort', list[l]);
+		}
+	}
+
+	this.order();
 };
 
 Users.prototype.init = function(users)
@@ -255,9 +282,15 @@ Users.prototype.init = function(users)
 				'</div>'+
 			'</div>');
 		$('body').append(token);
-		
+
 		token.delay(2000).fadeOut(300, function(){$("#token-popin-"+data.id).remove();});
 		setTimeout(function(){token.removeClass('before');});
+	});
+
+	// User order
+	this.room.socket.on('user order', function(data){
+		console.log(data);
+		that.sort(data);
 	});
 
 	if(this.room.user.admin){

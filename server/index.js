@@ -13,6 +13,7 @@ function User(id, socket, name, admin)
 	this.name = name;
 	this.tokens = {};
 	this.admin = admin || false;
+	this.order = -1;
 	this.connected = true;
 }
 
@@ -210,7 +211,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 						{
 							socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
 						}
-						
+
 						return;
 					}
 				}
@@ -220,7 +221,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 
 	if(message.stop)
 		return;
-	
+
 	// On envoie le message on bon destinataire
 	console.log(user.name+' to '+this.name+': '+msg);
 	if(receiver)
@@ -343,7 +344,7 @@ Room.prototype.diceArray = function(dice)
 	for(var i = 0; i < ds.length; i++)
 	{
 		var d = ds[i].split('d');
-		if(d[0] == '') 
+		if(d[0] == '')
 			d[0] = 1;
 		var l = parseInt(d[0], 10);
 		for(var j = 0; j < l; j++)
@@ -444,7 +445,7 @@ io.on('connection', function(socket)
 
 		rooms[room].parseMessage(user, socket, id, msg, action);
 	}
-	
+
 	socket.on('chat', function(msg){
 		parseMessage(messageid++, msg, 'chat');
 	});
@@ -477,7 +478,7 @@ io.on('connection', function(socket)
 			image: image.id,
 			name: image.name
 		};
-		
+
 		// On envoie le message avec le lien de l'image
 		console.log(user.name+' to '+room+': image '+name);
 		rooms[room].addMessage(message);
@@ -573,6 +574,26 @@ io.on('connection', function(socket)
 	});
 
 	//
+	// User Ordering
+	//
+	socket.on('user order', function(data)
+	{
+		if(!room || !user)
+			return;
+
+		console.log('ordering');
+
+		for(var i in data){
+			var u = rooms[room].getUserById(i);
+			if(u){
+				u.order = data[i];
+			}
+		}
+
+		io.to(room).emit('user order', data);
+	});
+
+	//
 	// Connection
 	//
 	socket.on('room join', function(data)
@@ -582,8 +603,8 @@ io.on('connection', function(socket)
 		// Si la room n'exist pas, on exit
 		if(!rooms[data.room])
 		{
-			socket.emit('login', { 
-				succes: false, 
+			socket.emit('login', {
+				succes: false,
 				error: 'Room '+data.room+' don\'t exist. <br>Press "create" to create instead.'
 			});
 			return;
@@ -593,8 +614,8 @@ io.on('connection', function(socket)
 		user = rooms[data.room].getUserByName(data.user);
 		if(user && user.connected)
 		{
-			socket.emit('login', { 
-				succes: false, 
+			socket.emit('login', {
+				succes: false,
 				error: 'User '+data.user+' already connected. <br>Please use another name (or wait if you just had a disconnection).'
 			});
 			return;
@@ -612,7 +633,7 @@ io.on('connection', function(socket)
 			// On s'ajoute a la room
 			rooms[room].addUser(user);
 		}
-		
+
 		// On ajoute la socket a sa room
 		socket.join(room);
 
@@ -620,7 +641,7 @@ io.on('connection', function(socket)
 		io.to(room).emit('user login', user);
 
 		// On notifie que la connection s'est bien passé
-		socket.emit('login', { 
+		socket.emit('login', {
 			succes: true,
 			room: rooms[room].getSocket(),
 			user: user
@@ -634,8 +655,8 @@ io.on('connection', function(socket)
 		// Si la room exist, on exit
 		if(rooms[data.room])
 		{
-			socket.emit('login', { 
-				succes: false, 
+			socket.emit('login', {
+				succes: false,
 				error: 'Room '+data.room+' already exist. <br>Press "join" to join instead.'
 			});
 			return;
@@ -656,7 +677,7 @@ io.on('connection', function(socket)
 		io.to(room).emit('user login', user);
 
 		// On notifie que la connection s'est bien passé
-		socket.emit('login', { 
+		socket.emit('login', {
 			succes: true,
 			room: rooms[room].getSocket(),
 			user: user
@@ -670,7 +691,9 @@ io.on('connection', function(socket)
 			console.log('user '+socket.id+' disconnected');
 			return;
 		}
-		
+
+		console.log(user);
+
 		//rooms[room].removeUser(user);
 		user.connected = false;
 		io.to(room).emit('user logout', user);
@@ -681,7 +704,7 @@ io.on('connection', function(socket)
 function chatError(message, error, type)
 {
 	type = type || "error";
-	message.message = error; 
-	message["error"] = type; 
+	message.message = error;
+	message["error"] = type;
 	return message;
 }
