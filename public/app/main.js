@@ -4,6 +4,7 @@
 	// Socket connection and login gestion
 	//
 
+	var Config = Config || {};
 	var url = Config.url || 'http://localhost:3000';
 	var socket = io(url);
 
