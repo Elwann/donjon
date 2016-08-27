@@ -108,9 +108,9 @@ Music.prototype.volume = function(volume)
 	}
 
 	this.$mute[0].className = c;
-	
+
 	this.$bar.css('width', (volume*100)+'%');
-	this.player.volume = volume;
+	this.player.volume = volume * 0.2;
 };
 
 Music.prototype.mute = function()
@@ -171,7 +171,7 @@ Music.prototype.init = function()
 		that.volume(data);
 	});
 
-	this.player.volume = 1;
+	this.volume(0.5);
 
 	if(this.room.user.admin)
 	{
