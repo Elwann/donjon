@@ -4,8 +4,8 @@
 	// Socket connection and login gestion
 	//
 
-	var Config = Config || {};
-	var url = Config.url || 'http://localhost:3000';
+	var config = Config || {};
+	var url = config.url || 'http://localhost:3000';
 	var socket = io(url);
 
 	var room;
@@ -13,7 +13,7 @@
 
 	function loginRoom(item, room, user, action)
 	{
-		if(room == "" || user == "" || loading) 
+		if(room == "" || user == "" || loading)
 			return false;
 
 		loading = true;

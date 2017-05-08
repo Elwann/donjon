@@ -191,9 +191,8 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 				{
 					var d = that.diceArray(message.dice);
 					var exist = false;
-					for(var i = 0; i < d.length; i++){
-						exist = (['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].indexOf(d[i]) >= 0);
-					}
+					for(var i = 0; i < d.dices.length; i++)
+						exist = (['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'].indexOf(d.dices[i]) >= 0);
 
 					if(exist){
 						var colors = ['#001F3F', '#0074D9', '#7FDBFF', '#39CCCC', '#3D9970', '#2ECC40', '#01FF70', '#FFDC00', '#FF851B', '#FF4136', '#85144B',  '#F012BE', '#B10DC9', '#DDDDDD'];
@@ -201,7 +200,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 						if(!this.dices.roll(
 							user,
 							to,
-							that.diceArray(message.dice),
+							d,
 							colors[Math.floor(colors.length * Math.random())],
 							function(to, room, data){ that.diceStart(to, room, data, user); },
 							function(to, room, data){ that.diceUpdate(to, room, data, user); },
@@ -302,13 +301,22 @@ Room.prototype.diceEnd = function(to, room, data, user)
 
 Room.prototype.commandDice = function(message)
 {
+	var seuil = null;
 	var raw = message.message;
-	var diceroll = message.message;
+	var rawroll = message.message;
 
 	if(raw.indexOf('d') < 0)
 	{
 		return chatError(message, "Not a valid dice");
 	}
+
+	if(raw.indexOf(' ') !== -1){
+		var dr = rawroll.split(' ');
+		rawroll = dr[0];
+		seuil = dr[1];
+	}
+
+	var diceNumbers = [];
 
 	function rollDice(match, p1, p2, offset, string)
 	{
@@ -316,7 +324,28 @@ Room.prototype.commandDice = function(message)
 
 		var calc = [];
 		for(var i = 0; i < p1; i++){
-			calc.push(Math.ceil(Math.random()*p2));
+			var n = Math.ceil(Math.random()*parseInt(p2, 10));
+			diceNumbers.push(n);
+			calc.push(n);
+		}
+
+		if(calc.length > 1){
+			return ' ( ' + calc.join(" + ") + ' ) ';
+		} else {
+			return ' ' + calc[0] + ' ';
+		}
+	}
+
+	var indexN = 0;
+
+	function rollSeuil(match, p1, p2, offset, string)
+	{
+		p1 = p1 || 1;
+
+		var calc = [];
+		for(var i = 0; i < p1; i++){
+			var n = diceNumbers[indexN++];
+			calc.push((n >= parseInt(seuil, 10)) ? 1 : 0);
 		}
 
 		if(calc.length > 1){
@@ -328,18 +357,19 @@ Room.prototype.commandDice = function(message)
 
 	var re = /([0-9]*)d([0-9]+)/ig;
 
-	var diceroll = diceroll.replace(re, rollDice);
-	var total = diceroll;
+	var diceroll = rawroll.replace(re, rollDice);
+	var total = (seuil == null) ? diceroll : rawroll.replace(re, rollSeuil);
 
 	message["dice"] = message.message;
-	message.message = '<span class="dice-original">'+raw+'</span> <span class="dice-total mui-text-display1">'+eval(total.replace(/[^-()\d/*+.]/g, ''))+'</span> <span class="dice-detail mui-text-caption">detail '+diceroll.trim()+'</span>';
+	message.message = '<span class="dice-original">' + raw + '</span> <span class="dice-total mui-text-display1">' + eval(total.replace(/[^-()\d/*+.]/g, '')) + '</span> <span class="dice-detail mui-text-caption">detail ' + diceroll.trim() + '</span>';
 
 	return message;
 }
 
 Room.prototype.diceArray = function(dice)
 {
-	var ds = dice.split(' ').join('+').split('+');
+	var cmd = dice.split(' ');
+	var ds = cmd[0].split('+');
 	var dices = [];
 	for(var i = 0; i < ds.length; i++)
 	{
@@ -351,7 +381,13 @@ Room.prototype.diceArray = function(dice)
 			dices.push('d'+d[1]);
 	}
 
-	return dices;
+	var seuil = null;
+	if(cmd[1]) seuil = cmd[1];
+
+	return {
+		dices: dices,
+		seuil: seuil
+	};
 }
 
 Room.prototype.commandHelp = function(message)
@@ -691,8 +727,6 @@ io.on('connection', function(socket)
 			console.log('user '+socket.id+' disconnected');
 			return;
 		}
-
-		console.log(user);
 
 		//rooms[room].removeUser(user);
 		user.connected = false;

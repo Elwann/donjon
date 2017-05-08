@@ -52,9 +52,9 @@ DicesModels3D.d10 = {
 			return vertices;
 		}(),
 		faces: [
-			[5, 7, 11, 0], [4, 2, 10, 1], [1, 3, 11, 2], [0, 8, 10, 3], [7, 9, 11, 4], 
+			[5, 7, 11, 0], [4, 2, 10, 1], [1, 3, 11, 2], [0, 8, 10, 3], [7, 9, 11, 4],
 			[8, 6, 10, 5], [9, 1, 11, 6], [2, 0, 10, 7], [3, 5, 11, 8], [6, 4, 10, 9],
-			[5, 6, 7, -1], [3, 2, 4, -1], [1, 2, 3, -1], [9, 8, 0, -1], [7, 8, 9, -1], 
+			[5, 6, 7, -1], [3, 2, 4, -1], [1, 2, 3, -1], [9, 8, 0, -1], [7, 8, 9, -1],
 			[7, 6, 8, -1], [9, 0, 1, -1], [1, 0, 2, -1], [3, 4, 5, -1], [5, 4, 6, -1]
 		],
 		tab: 0,
@@ -173,6 +173,7 @@ function Rolls3D(user, to, rolls, color, box, callbackStart, callbackUpdate, cal
 	this.dices = [];
 	this.color = color;
 	this.result = null;
+	this.seuil = rolls.seuil;
 	this.endroll;
 	this.callbackStart = callbackStart;
 	this.callbackUpdate = callbackUpdate;
@@ -180,10 +181,10 @@ function Rolls3D(user, to, rolls, color, box, callbackStart, callbackUpdate, cal
 	this.callbackEnd = callbackEnd;
 
 	var r = [];
-	for(var i = 0, l = rolls.length; i < l; i++)
+	for(var i = 0, l = rolls.dices.length; i < l; i++)
 	{
-		r.push({id: this.roll(rolls[i]), type: rolls[i], color: color});
-		if(rolls[i] == 'd100')
+		r.push({id: this.roll(rolls.dices[i]), type: rolls.dices[i], color: color});
+		if(rolls.dices[i] == 'd100')
 			r.push({id: this.roll('d10'), type: 'd10', color: color});
 	}
 
@@ -237,6 +238,7 @@ Rolls3D.prototype.check = function()
 	var i = 0;
 	var l = this.dices.length;
 	while (i < l) {
+		var v = 0;
 		var dice = this.dices[i];
 		if(dice.type == 'd100')
 		{
@@ -247,19 +249,21 @@ Rolls3D.prototype.check = function()
 				d10 = this.dices[i+1].result() % 10;
 				this.result.dices[this.dices[i+1].id] = v;
 			}
-			var v = (d100 + d10 == 0) ? 100 : d100 + d10
-			this.result.total += v;
-			this.result.details.push(v);
+			v = (d100 + d10 == 0) ? 100 : d100 + d10
 			i+=2;
 		}
 		else
 		{
-			var v = dice.result()
-			this.result.total += v;
-			this.result.details.push(v);
+			v = dice.result();
 			this.result.dices[dice.id] = v;
 			i++;
 		}
+		if(this.seuil == null){
+			this.result.total += v;
+		} else if(v >= this.seuil){
+			this.result.total += 1;
+		}
+		this.result.details.push(v);
 	}
 
 	this.result.details = this.result.details.join(' + ');
