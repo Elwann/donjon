@@ -49,9 +49,9 @@ DicesModels3D.d10 = {
 			return vertices;
 		}(),
 		faces: [
-			[5, 7, 11, 0], [4, 2, 10, 1], [1, 3, 11, 2], [0, 8, 10, 3], [7, 9, 11, 4], 
+			[5, 7, 11, 0], [4, 2, 10, 1], [1, 3, 11, 2], [0, 8, 10, 3], [7, 9, 11, 4],
 			[8, 6, 10, 5], [9, 1, 11, 6], [2, 0, 10, 7], [3, 5, 11, 8], [6, 4, 10, 9],
-			[5, 6, 7, -1], [3, 2, 4, -1], [1, 2, 3, -1], [9, 8, 0, -1], [7, 8, 9, -1], 
+			[5, 6, 7, -1], [3, 2, 4, -1], [1, 2, 3, -1], [9, 8, 0, -1], [7, 8, 9, -1],
 			[7, 6, 8, -1], [9, 0, 1, -1], [1, 0, 2, -1], [3, 4, 5, -1], [5, 4, 6, -1]
 		],
 		tab: 0,
@@ -164,10 +164,10 @@ function idealTextColor(bgColor) {
    var components = getRGBComponents(bgColor);
    var bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
 
-   return ((255 - bgDelta) < nThreshold) ? "#000000" : "#ffffff";   
+   return ((255 - bgDelta) < nThreshold) ? "#000000" : "#ffffff";
 }
 
-function getRGBComponents(color) {       
+function getRGBComponents(color) {
 
     var r = color.substring(1, 3);
     var g = color.substring(3, 5);
@@ -320,11 +320,34 @@ function Dices3D(room, width, height)
 	this.aspect;
 	this.scale;
 	this.desk;
+	this.light;
 
 	this.dices = {};
 
 	this.init();
 }
+
+Dices3D.prototype.resize = function()
+{
+	this.w = window.innerWidth;
+	this.h = window.innerHeight;
+	this.cw = this.w / 2;
+	this.ch = this.h / 2;
+	this.aspect = Math.min(this.cw / this.w, this.ch / this.h);
+	this.scale = Math.sqrt(this.w * this.w + this.h * this.h) / 13;
+
+	var wh = Math.min(this.cw, this.ch) / this.aspect / Math.tan(10 * Math.PI / 180);
+	this.camera.aspect = this.cw / this.ch;
+	this.camera.far = wh * 1.3;
+	this.camera.position.z = wh;
+	this.camera.updateProjectionMatrix();
+
+	var mw = Math.max(this.w, this.h);
+	this.light.position.set(-mw / 2, mw / 2, mw * 2);
+	this.light.target.position.set(0, 0, 0);
+
+	this.renderer.setSize(this.w, this.h);
+};
 
 Dices3D.prototype.init = function()
 {
@@ -358,18 +381,18 @@ Dices3D.prototype.init = function()
 	this.scene.add(ambientLight);
 
 	var mw = Math.max(this.w, this.h);
-	var light = new THREE.SpotLight(0xffffff);
-	light.position.set(-mw / 2, mw / 2, mw * 2);
-	light.target.position.set(0, 0, 0);
-	light.castShadow = true;
-	light.shadowCameraNear = mw / 10;
-	light.shadowCameraFar = mw * 3;
-	light.shadowCameraFov = 50;
-	light.shadowBias = 0.001;
-	light.shadowDarkness = 0.3;
-	light.shadowMapWidth = 1024;
-	light.shadowMapHeight = 1024;
-	this.scene.add(light);
+	this.light = new THREE.SpotLight(0xffffff);
+	this.light.position.set(-mw / 2, mw / 2, mw * 2);
+	this.light.target.position.set(0, 0, 0);
+	this.light.castShadow = true;
+	this.light.shadowCameraNear = mw / 10;
+	this.light.shadowCameraFar = mw * 3;
+	this.light.shadowCameraFov = 50;
+	this.light.shadowBias = 0.001;
+	this.light.shadowDarkness = 0.3;
+	this.light.shadowMapWidth = 1024;
+	this.light.shadowMapHeight = 1024;
+	this.scene.add(this.light);
 
 	var planeFragmentShader = [
 
@@ -414,6 +437,8 @@ Dices3D.prototype.init = function()
 	this.desk = new THREE.Mesh(new THREE.PlaneGeometry(this.w*2, this.h*2, 1, 1), planeMaterial);
 	this.desk.receiveShadow = true;
 	this.scene.add(this.desk);
+
+	window.addEventListener('click', this.resize.bind(this));
 
 	this.room.socket.on('dice start', function(data){
 		for(var i = 0; i < data.length; i++){
