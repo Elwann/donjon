@@ -3,9 +3,11 @@ function Music(room)
 	this.room = room;
 	this.playlist = [];
 	this.current = 0;
-	this.vol = 0;
+    this.currentIndex = 0;
+	this.savedVolume = 0;
+	this.currentVolume = 0;
 	this.volet = 0;
-	this.player = new Audio();
+	this.player;
 
 	this.$play = $("#play");
 	this.$mute = $("#mute");
@@ -13,66 +15,62 @@ function Music(room)
 	this.$bar = this.$volume.find(".audio-volume-bar");
 	this.$musicPlayer = $("#music-player");
 
+    this.$musicPopin;
+    this.$musicUrl;
+    this.$playLater;
+    this.$playNow;
+
 	this.init();
 }
 
-Music.prototype.crawlSongs = function(playlist)
-{
-	++this.volet;
-	var musiclist = '';
-	musiclist += '<h4 class="playlist list link">'+playlist.title+'<i class="icon-play fa fa-play"></i></h4>';
-	musiclist += '<input id="volet-'+this.volet+'" type="checkbox" '+((this.volet==1)?'checked':'')+' class="volet-checkbox">';
-	musiclist += '<label for="volet-'+this.volet+'" class="volet-btn link fa fa-caret-right"></label>';
-	musiclist += '<ul class="volet-content">';
-	for(var i = 0; i < playlist.songs.length; i++){
-		if(playlist.songs[i].type == "playlist"){
-			musiclist += '<li>'+this.crawlSongs(playlist.songs[i])+'</li>';
-		} else {
-			musiclist += '<li class="song list link" data-song="music/'+playlist.songs[i].url+'">'+playlist.songs[i].title+'<i class="icon-play fa fa-play"></i></li>';
-		}
-	}
-	musiclist += '</ul>';
-
-	return musiclist;
-};
-
-Music.prototype.showList = function()
-{
-	var that = this;
-	this.volet = 0;
-
-	if($(".music-selector").length > 0){
-		$(".music-selector").fadeIn(300);
-	} else {
-		$.post('music/list.php', function(data){
-			$("body").append(
-				'<div class="music-selector overlay centerer" style="display:none;">'+
-					'<div class="popin mui-panel centered">'+
-						'<i class="music-selector-close fa fa-times link"></i>'+
-						'<div style="position:relative;">'+that.crawlSongs(data)+'</div>'+
-					'</div>'+
-				'</div>'
-			);
-
-			$(".music-selector").fadeIn(300);
-		});
-	}
-};
-
 Music.prototype.load = function(data)
 {
-	this.playlist = data;
-	this.current = 0;
-	this.play();
+    if(data.add){
+        this.playlist.push(data);
+        if(this.playlist.length == 1){
+            this.current = 0;
+            this.start();
+        }
+    } else {
+        this.current = 0;
+        this.playlist = [data];
+        this.start();
+    }
+};
+
+Music.prototype.start = function()
+{
+    if(this.playlist.length === 0)
+        return;
+    if(this.playlist[this.current].playlist) this.player.loadPlaylist({list: this.playlist[this.current].url});
+    else this.player.loadPlaylist(this.playlist[this.current].url);
+    this.play();
 };
 
 Music.prototype.next = function()
 {
-	++this.current;
-	if(this.current >= this.playlist.length)
+	if(++this.current >= this.playlist.length)
 		this.current = 0;
+	this.start();
+};
 
-	this.play();
+Music.prototype.parseURL = function(url)
+{
+    var playlist = false;
+    if(url.indexOf('list=') != -1){
+        url = url.replace(/(>|<)/gi,'').split(/(vi\/|list=|\/v\/|youtu\.be\/|\/embed\/)/);
+        playlist = true;
+    } else {
+        url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+    }
+
+    if(url[2] !== undefined)
+        url = url[2].split(/[^0-9a-z_\-]/i);
+
+    return {
+        url: url[0],
+        playlist: playlist
+    };
 };
 
 Music.prototype.play = function()
@@ -80,10 +78,7 @@ Music.prototype.play = function()
 	this.$play
 		.removeClass("fa-play")
 		.addClass("fa-pause");
-
-	this.player.src = this.playlist[this.current];
-	this.player.loop = false;
-	this.player.play();
+	this.player.playVideo();
 };
 
 Music.prototype.pause = function()
@@ -91,7 +86,7 @@ Music.prototype.pause = function()
 	this.$play
 		.removeClass("fa-pause")
 		.addClass("fa-play");
-	this.player.pause();
+	this.player.pauseVideo();
 };
 
 Music.prototype.volume = function(volume)
@@ -110,127 +105,179 @@ Music.prototype.volume = function(volume)
 	this.$mute[0].className = c;
 
 	this.$bar.css('width', (volume*100)+'%');
-	this.player.volume = volume * 0.2;
+	this.player.setVolume(volume * 20);
+    this.currentVolume = volume;
 };
 
 Music.prototype.mute = function()
 {
-	this.vol = this.player.volume;
+	this.savedVolume = this.currentVolume;
 	this.volume(0);
 };
 
 Music.prototype.unmute = function()
 {
-	this.volume(this.vol);
-	this.vol = 0;
+	this.volume(this.savedVolume);
+	this.savedVolume = 0;
 };
 
 Music.prototype.init = function()
 {
 	var that = this;
 
-	this.$volume.on('mousedown.music', function(e){
-		e.preventDefault();
-		that.volume(Math.round(e.offsetX/$(this).width()*100)/100);
-		$(window).on('mousemove.music', function(e){
-			var offset = e.clientX - that.$volume.offset().left;
-			that.volume(Math.round(offset/that.$volume.width()*100)/100);
-		});
-	});
+    // Youtube player tag
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-	this.$mute.on('click.music', function(){
-		if(that.vol == 0){
-			that.mute();
-		} else {
-			that.unmute();
-		}
-	});
+    window.onYouTubeIframeAPIReady = function() {
+        that.player = new YT.Player('yt-player', {
+            height: '1',
+            width: '1',
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
 
-	$(window).on('mouseup.music', function(){
-		$(window).off('mousemove.music');
-	});
+        //$('#yt-player').css({position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'});
+    }
 
-	$('body').on("click.music", ".music-selector-close", function(){
-		$('.music-selector').fadeOut(300);
-	});
+    // 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+        console.log('player ready');
 
-	$(this.player).on('ended.music', function(e){
-		that.pause();
-		that.next();
-	});
+        that.volume(0.5);
 
-	this.room.socket.on('music', function(data){
-		that.load(data);
-	});
+        that.$volume.on('mousedown.music', function(e){
+            e.preventDefault();
+            that.volume(Math.round(e.offsetX/$(this).width()*100)/100);
+            $(window).on('mousemove.music', function(e){
+                var offset = e.clientX - that.$volume.offset().left;
+                that.volume(Math.round(offset/that.$volume.width()*100)/100);
+            });
+        });
 
-	this.room.socket.on('music pause', function(){
-		that.pause();
-	});
+        that.$mute.on('click.music', function(){
+            if(that.savedVolume == 0){
+                that.mute();
+            } else {
+                that.unmute();
+            }
+        });
 
-	this.room.socket.on('music volume', function(data){
-		that.volume(data);
-	});
+        $(window).on('mouseup.music', function(){
+            $(window).off('mousemove.music');
+        });
 
-	this.volume(0.5);
+        $('body').on("click.music", ".music-selector-close", function(){
+            that.$musicPopin.fadeOut(300);
+        });
 
-	if(this.room.user.admin)
-	{
-		$('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
+        that.room.socket.on('music', function(data){
+            that.load(data);
+        });
 
-		this.$musicPlayer = $("#music-player");
+        that.room.socket.on('music pause', function(){
+            that.pause();
+        });
 
-		this.$musicPlayer.on("click.music", function(e){
-			e.preventDefault();
-			if(that.room.user.admin)
-			{
-				that.showList();
-			}
-		});
+        that.room.socket.on('music play', function(){
+            that.play();
+        });
 
-		this.$play.on("click.music", function(e){
-			e.preventDefault();
-			if(that.room.user.admin)
-			{
-				var $this = $(this);
-				if($this.hasClass('fa-play')){
-					that.showList();
-				} else {
-					that.room.socket.emit('music pause');
-				}
-			}
-		});
+        that.room.socket.on('music volume', function(data){
+            that.volume(data);
+        });
 
-		$('body').on('click.music', '.song', function(e){
-			e.preventDefault();
-			$('.music-selector').fadeOut(300);
-			if(that.room.user.admin)
-			{
-				that.room.socket.emit('music', [$(this).attr('data-song')]);
-			}
-		});
+        if(that.room.user.admin)
+        {
+            $('.room-wrapper').append('<div id="music-player"><div class="music-title">Click to choose song</div></div>');
 
-		$('body').on('click.music', '.playlist', function(e){
-			e.preventDefault();
-			$('.music-selector').fadeOut(300);
-			if(that.room.user.admin){
-				var songs = [];
-				$(this).next('input').next('label').next('ul').find('.song').each(function(){
-					songs.push($(this).attr('data-song'));
-				});
+            $('.room-wrapper').append('<div class="music-selector overlay centerer" style="display:none;">'+
+                '<div class="popin mui-panel centered">'+
+                    '<i class="music-selector-close fa fa-times link"></i>'+
+                    '<div class="mui-form-group">'+
+                        '<input id="music-url" type="text" class="mui-form-control" placeholder="https://www.youtube.com/watch?v=fOEQTJV_3-w">'+
+                        '<label>Youtube url</label>'+
+                    '</div>'+
+                    '<button id="play-later" class="mui-btn mui-btn-flat mui-btn-default mui-pull-left">To playlist</button>'+
+                    '<button id="play-now" class="mui-btn mui-btn-raised mui-btn-primary mui-pull-right">Play now</button>'+
+                '</div>'+
+            '</div>');
 
-				that.room.socket.emit('music', songs);
-			}
-		});
-	}
+            that.$musicPlayer = $("#music-player");
+            that.$musicPopin = $(".music-selector");
+            that.$musicUrl = $("#music-url");
+            that.$playLater = $("#play-later");
+            that.$playNow = $("#play-now");
+
+            that.$musicPlayer.on("click.music", function(e){
+                e.preventDefault();
+                if(that.room.user.admin){
+                    that.$musicPopin.fadeIn(300);
+                }
+            });
+
+            that.$play.on("click.music", function(e){
+                e.preventDefault();
+                if(that.room.user.admin)
+                {
+                    var $this = $(this);
+                    if($this.hasClass('fa-play')){
+                        if(that.player){
+                            that.room.socket.emit('music play');
+                        } else {
+                            that.$musicPopin.fadeIn(300);
+                        }
+                    } else {
+                        that.room.socket.emit('music pause');
+                    }
+                }
+            });
+
+            that.$playNow.on('click.music', function(e){
+                e.preventDefault();
+                var value = that.$musicUrl[0].value;
+                var parse = that.parseURL(value);
+                parse.add = false;
+                that.$musicPopin.fadeOut(300);
+                that.room.socket.emit('music', parse);
+                //console.log('play now', parse);
+            });
+
+            that.$playLater.on('click.music', function(e){
+                e.preventDefault();
+                var value = that.$musicUrl[0].value;
+                var parse = that.parseURL(value);
+                parse.add = true;
+                that.$musicPopin.fadeOut(300);
+                that.room.socket.emit('music', parse);
+                //console.log('play later', parse);
+            });
+        }
+    }
+
+    function onPlayerStateChange(event) {
+        //console.log('event: ' + event.data, 'index: ' + that.currentIndex, 'length: ' + (event.target.getPlaylist().length-1));
+        if(event.data == YT.PlayerState.PLAYING)
+            that.currentIndex = event.target.getPlaylistIndex();
+        if(event.data == YT.PlayerState.ENDED && that.currentIndex == event.target.getPlaylist().length-1){
+            that.next();
+            //console.log('Fin de la playlist');
+        }
+    }
 };
 
 Music.prototype.destroy = function()
 {
-	this.player.pause();
-	this.player.src = "";
+	this.player.destroy();
 	this.$volume.off('.music');
 	this.$mute.off('.music');
 	this.$play.off('.music');
+	this.$playNow.off('.music');
+	this.$playLate.off('.music');
 	$('body').off('.music');
 	$(window).off('.music');
 	$(this.player).off('.music');

@@ -546,6 +546,18 @@ io.on('connection', function(socket)
 		io.to(room).emit('music', song);
 	});
 
+	socket.on('music play', function()
+	{
+		if(!room || !user)
+			return;
+
+		if(!user.admin)
+			return;
+
+		console.log('Restart audio in room '+room);
+		io.to(room).emit('music play');
+	});
+
 	socket.on('music pause', function()
 	{
 		if(!room || !user)
