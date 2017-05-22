@@ -1,3 +1,67 @@
+function LocalPlayer(music)
+{
+	this.music = that;
+	this.audio = new Audio();
+	this.init();
+}
+
+LocalPlayer.prototype.init = function(){
+	this.audio.autoplay = true;
+	this.audio.loop = true;
+};
+
+LocalPlayer.prototype.start = function(track){
+	this.audio.src = track.url;
+	this.play();
+};
+
+LocalPlayer.prototype.pause = function(){
+	this.audio.pause();
+};
+
+LocalPlayer.prototype.play = function(){
+	this.audio.play();
+};
+
+LocalPlayer.prototype.volume = function(v){
+	this.audio.volume = Math.max(0, Math.min(v, 1));
+};
+
+LocalPlayer.prototype.destroy = function(){
+	this.audio.parentNode.removeChild(this.audio);
+};
+
+function YoutubePlayer(music)
+{
+	this.music = music;
+	this.youtube;
+}
+
+YoutubePlayer.prototype.init = function(){
+
+};
+
+YoutubePlayer.prototype.start = function(track){
+	if(track.type == 'playlist') this.player.loadPlaylist({list: track.url});
+    else this.player.loadPlaylist(track.url);
+};
+
+YoutubePlayer.prototype.pause = function(){
+	this.youtube.pauseVideo();
+};
+
+YoutubePlayer.prototype.play = function(){
+	this.youtube.playVideo();
+};
+
+YoutubePlayer.prototype.volume = function(v){
+	this.audio.setVolume(Math.max(0, Math.min(v, 1)) * 100);
+};
+
+YoutubePlayer.prototype.destroy = function(){
+	this.audio.parentNode.removeChild(this.audio);
+};
+
 function Music(room)
 {
 	this.room = room;
@@ -7,6 +71,8 @@ function Music(room)
 	this.savedVolume = 0;
 	this.currentVolume = 0;
 	this.volet = 0;
+	this.localPlayer;
+	this.youtubePlayer;
 	this.player;
 
 	this.$play = $("#play");
@@ -42,8 +108,12 @@ Music.prototype.start = function()
 {
     if(this.playlist.length === 0)
         return;
-    if(this.playlist[this.current].playlist) this.player.loadPlaylist({list: this.playlist[this.current].url});
-    else this.player.loadPlaylist(this.playlist[this.current].url);
+	if(this.playlist[this.current].type == 'local')
+		this.player = this.localPlayer;
+	else
+		this.player = this.youtubePlayer;
+
+    this.player.start(this.playlist[this.current]);
     this.play();
 };
 
@@ -56,10 +126,10 @@ Music.prototype.next = function()
 
 Music.prototype.parseURL = function(url)
 {
-    var playlist = false;
+    var type = 'video';
     if(url.indexOf('list=') != -1){
         url = url.replace(/(>|<)/gi,'').split(/(vi\/|list=|\/v\/|youtu\.be\/|\/embed\/)/);
-        playlist = true;
+        type = 'playlist';
     } else {
         url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
     }
@@ -69,7 +139,7 @@ Music.prototype.parseURL = function(url)
 
     return {
         url: url[0],
-        playlist: playlist
+        type: type
     };
 };
 
@@ -78,7 +148,7 @@ Music.prototype.play = function()
 	this.$play
 		.removeClass("fa-play")
 		.addClass("fa-pause");
-	this.player.playVideo();
+	this.player.play();
 };
 
 Music.prototype.pause = function()
@@ -86,7 +156,7 @@ Music.prototype.pause = function()
 	this.$play
 		.removeClass("fa-pause")
 		.addClass("fa-play");
-	this.player.pauseVideo();
+	this.player.pause();
 };
 
 Music.prototype.volume = function(volume)
@@ -105,7 +175,8 @@ Music.prototype.volume = function(volume)
 	this.$mute[0].className = c;
 
 	this.$bar.css('width', (volume*100)+'%');
-	this.player.setVolume(volume * 20);
+
+	this.player.volume(volume * 0.2);
     this.currentVolume = volume;
 };
 
@@ -125,6 +196,9 @@ Music.prototype.init = function()
 {
 	var that = this;
 
+	that.youtubePlayer = new YoutubePlayer(that);
+	that.localPlayer = new LocalPlayer(that);
+
     // Youtube player tag
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -140,8 +214,6 @@ Music.prototype.init = function()
                 'onStateChange': onPlayerStateChange
             }
         });
-
-        //$('#yt-player').css({position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'});
     }
 
     // 4. The API will call this function when the video player is ready.
@@ -280,7 +352,6 @@ Music.prototype.destroy = function()
 	this.$playLate.off('.music');
 	$('body').off('.music');
 	$(window).off('.music');
-	$(this.player).off('.music');
 
 	this.room.socket.removeAllListeners('music');
 	this.room.socket.removeAllListeners('music play');

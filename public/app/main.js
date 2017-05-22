@@ -4,8 +4,8 @@
 	// Socket connection and login gestion
 	//
 
-	var config = Config || {};
-	var url = config.url || 'http://localhost:3000';
+	var config = config || {};
+	var url = config.url || 'http://localhost:3030';
 	var socket = io(url);
 
 	var room;

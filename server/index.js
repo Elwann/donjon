@@ -1,4 +1,4 @@
-var io = require('socket.io').listen(3000);
+var io = require('socket.io').listen(3030);
 var DICES = require('./dices.js');
 
 var messageid = 0;
