@@ -8,6 +8,7 @@ function LocalPlayer(music)
 
 LocalPlayer.prototype.init = function(){
 	var that = this;
+	document.body.appendChild(this.audio);
 	this.audio.autoplay = true;
 	this.audio.loop = true;
 
@@ -101,6 +102,7 @@ LocalPlayer.prototype.volume = function(v){
 };
 
 LocalPlayer.prototype.destroy = function(){
+	console.log(this.audio);
 	this.audio.parentNode.removeChild(this.audio);
 };
 
@@ -225,10 +227,10 @@ YoutubePlayer.prototype.volume = function(v){
 };
 
 YoutubePlayer.prototype.destroy = function(){
-	this.youtube.parentNode.removeChild(this.audio);
+	this.youtube.destroy();
 
 	this.$playNow.off('.music');
-	this.$playLate.off('.music');
+	this.$playLater.off('.music');
 };
 
 function Music(room)
@@ -461,4 +463,5 @@ Music.prototype.destroy = function()
 	this.room.socket.removeAllListeners('music volume');
 
 	this.$musicPlayer.remove();
+	this.$musicPopin.remove();
 };
