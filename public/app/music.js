@@ -228,9 +228,10 @@ YoutubePlayer.prototype.volume = function(v){
 
 YoutubePlayer.prototype.destroy = function(){
 	this.youtube.destroy();
-
-	this.$playNow.off('.music');
-	this.$playLater.off('.music');
+	if(this.music.room.user.admin){
+		this.$playNow.off('.music');
+		this.$playLater.off('.music');
+	}
 };
 
 function Music(room)
@@ -462,6 +463,8 @@ Music.prototype.destroy = function()
 	this.room.socket.removeAllListeners('music pause');
 	this.room.socket.removeAllListeners('music volume');
 
-	this.$musicPlayer.remove();
-	this.$musicPopin.remove();
+	if(this.room.user.admin){
+		this.$musicPlayer.remove();
+		this.$musicPopin.remove();
+	}
 };
