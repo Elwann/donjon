@@ -200,6 +200,7 @@ section.middle{
 	height: 100%;
 	//width: 75%;
 	margin-left: 240px;
+	margin-right: 60px;
 	overflow-y: scroll;
 	padding: 20px;
 }
@@ -566,62 +567,28 @@ footer{
 
 @dicesize: 40px;
 
+.dices{
+    overflow: hidden;
+    float: right;
+    background: #333;
+    padding: 10px 10px 5px 10px;
+    height: 100%;
+    .dice{
+        transition: all 0.5s ease;
+    }
+}
+
 #dices{
-	overflow: hidden;
-	float: left;
-	background: #444;
-	padding: 10px 5px 10px 10px;
-	.dice{
-		transition: all 0.5s ease;
-	}
-}
-
-.dices-0{
-	display: none;
-}
-
-.dices-1{
-	width: ((@dicesize+5)*1 + 15);
-	&+#chat{
-		margin-left: ((@dicesize+5)*1 + 15);
-	}
-}
-
-.dices-2{
-	width: ((@dicesize+5)*2 + 15);
-	&+#chat{
-		margin-left: ((@dicesize+5)*2 + 15);
-	}
-}
-
-.dices-3{
-	width: ((@dicesize+5)*3 + 15);
-	&+#chat{
-		margin-left: ((@dicesize+5)*3 + 15);
-	}
-}
-
-.dices-4{
-	width: ((@dicesize+5)*4 + 15);
-	&+#chat{
-		margin-left: ((@dicesize+5)*4 + 15);
-	}
-}
-
-.dices-5{
-	width: ((@dicesize+5)*5 + 15);
-	&+#chat{
-		margin-left: ((@dicesize+5)*5 + 15);
-	}
+	position: relative;
+    max-width: 40px;
 }
 
 .dice{
 	position: relative;
-	float: left;
 	width: @dicesize;
 	height: @dicesize;
 	line-height: @dicesize;
-	margin-right: 5px;
+	margin-bottom: 5px;
 	text-align: center;
 	font-weight: bold;
 	color: #fff;
@@ -927,12 +894,34 @@ footer{
 
 @media screen and (max-width: 670px){
 	section.middle{
+        padding-bottom: 120px;
 		aside{
 			width: 25%;
 		}
 	}
 
+    .dices{
+        position: fixed;
+        bottom: 60px;
+        width: 100%;
+        height: 60px;
+        padding: 10px 5px 10px 10px;
+        overflow: auto;
+    }
+
+    #dices{
+        max-height: 40px;
+        max-width: none;
+    }
+
+    .dice{
+        float: left;
+        margin-right: 5px;
+        margin-bottom: 0;
+    }
+
 	#content{
 		margin-left: 25%;
+        margin-right: 0;
 	}
 }

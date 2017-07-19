@@ -939,14 +939,11 @@ Dices.prototype.reset = function()
 Dices.prototype.show = function()
 {
 	this.sort();
-	var number = this.number();
-	var length = (this.dices.length > number) ? number : this.dices.length;
+	var length = this.dices.length;
 	this.$dices.children(".dice").detach();
-	this.$dices[0].className = "dices-"+length;
-
-	for(var i = 0; i < length; i++){
+	this.$dices.css({width: 45 * length, height: 45 * length});
+	for(var i = 0; i < length; i++)
 		this.$dices.append(this.dices[i].$item);
-	}
 };
 
 // Sort dices by number of rolls
@@ -978,11 +975,6 @@ Dices.prototype.roll = function(dice)
 	}
 
 	this.show();
-};
-
-Dices.prototype.number = function()
-{
-	return Math.max(Math.min(Math.round(($(window).width() * 0.15) / 40), 5), 1);
 };
 
 Dices.prototype.init = function()
