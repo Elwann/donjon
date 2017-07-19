@@ -4,7 +4,7 @@ function Room(socket, name, user, users, messages, options)
 	this.name = name;
 	this.user = user;
 
-	this.dices = new Dices(this);
+	this.dices = new Dices(this, options.defaultDices);
 	if(hasWebGLSupport()){
 		this.dice = new Dices3D(this, window.innerWidth, window.innerHeight);
 	} else {
@@ -38,12 +38,12 @@ Room.prototype.init = function(users)
 	this.$logout.on("click.room", function(e){
 		e.preventDefault();
 		Cookies.remove('login');
-		that.destroy();		
+		that.destroy();
 		window.location.href = window.location.href;
 	});
 
 	this.socket.on('disconnect', function(){
-		that.destroy();		
+		that.destroy();
 		window.location.href = window.location.href;
 	});
 };

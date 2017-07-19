@@ -913,20 +913,26 @@ Dice.prototype.roll = function() {
 	this.cooldown = setTimeout(function(){ that.$item.removeClass("cooldown"); }, 2000);
 };
 
-function Dices(room)
+function Dices(room, defaultDices)
 {
 	this.room = room;
+	this.defaultDices = defaultDices || [];
 	this.dices = [];
 
 	this.$dices = $("#dices");
 
+	this.reset();
 	this.init();
 }
 
 // Clear dices
-Dices.prototype.unload = function()
+Dices.prototype.reset = function()
 {
+	var that = this;
 	this.dices = [];
+	$.each(this.defaultDices, function(i, d){
+		that.roll(d);
+	});
 };
 
 // Show dices
@@ -1838,7 +1844,7 @@ function Room(socket, name, user, users, messages, options)
 	this.name = name;
 	this.user = user;
 
-	this.dices = new Dices(this);
+	this.dices = new Dices(this, options.defaultDices);
 	if(hasWebGLSupport()){
 		this.dice = new Dices3D(this, window.innerWidth, window.innerHeight);
 	} else {
@@ -1872,12 +1878,12 @@ Room.prototype.init = function(users)
 	this.$logout.on("click.room", function(e){
 		e.preventDefault();
 		Cookies.remove('login');
-		that.destroy();		
+		that.destroy();
 		window.location.href = window.location.href;
 	});
 
 	this.socket.on('disconnect', function(){
-		that.destroy();		
+		that.destroy();
 		window.location.href = window.location.href;
 	});
 };
@@ -1893,6 +1899,7 @@ Room.prototype.destroy = function()
 	this.chat.destroy();
 	this.music.destroy();
 };
+
 function Users(room, users)
 {
 	this.room = room;

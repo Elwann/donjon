@@ -13,20 +13,26 @@ Dice.prototype.roll = function() {
 	this.cooldown = setTimeout(function(){ that.$item.removeClass("cooldown"); }, 2000);
 };
 
-function Dices(room)
+function Dices(room, defaultDices)
 {
 	this.room = room;
+	this.defaultDices = defaultDices || [];
 	this.dices = [];
 
 	this.$dices = $("#dices");
 
+	this.reset();
 	this.init();
 }
 
 // Clear dices
-Dices.prototype.unload = function()
+Dices.prototype.reset = function()
 {
+	var that = this;
 	this.dices = [];
+	$.each(this.defaultDices, function(i, d){
+		that.roll(d);
+	});
 };
 
 // Show dices

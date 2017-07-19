@@ -43,7 +43,9 @@ function Room(name, admin)
 	this.messages = [];
 	this.images = [];
 	this.settings = {
-		dices3D: true
+		dices3D: true,
+		defaultDices: ['d100', 'd20', 'd12', 'd10', 'd8', 'd6', 'd4'],
+		customRoll: 'nd6 4'
 	};
 
 	if(this.settings.dices3D)
