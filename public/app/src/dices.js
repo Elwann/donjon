@@ -49,7 +49,7 @@ Dices.prototype.sort = function()
 	this.dices.sort(function(a, b){ return b.rolls - a.rolls; });
 };
 
-// Show 
+// Show
 Dices.prototype.roll = function(dice)
 {
 	// Merge 1dX and dX
