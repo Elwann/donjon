@@ -64,7 +64,7 @@ Room.prototype.showOptions = function()
 {
 	var contenu = '<div id="options-popin" class="overlay centerer"><div class="popin mui-panel centered"><i class="options-close popin-close fa fa-times link"></i>';
 	contenu += '<div class="mui-form-group"><label for="options-dices-3d">Use 3D dice</label><input id="options-dices-3d" type="checkbox"'+((this.options.dices3D) ? ' checked' : ' ')+'></div>';
-	contenu += '<div class="mui-form-group"><input id="options-default-dices" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.defaultDices.join(' ')+'"><label>Default dice (separated by spaces)</label></div>';
+	contenu += '<div class="mui-form-group"><input id="options-default-dices" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.defaultDices.join(',')+'"><label>Default dice (separated by comma)</label></div>';
 	contenu += '<div class="mui-form-group"><input id="options-custom-roll" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.customRoll+'"><label>/dice command (custom /roll where agument are remplacing $n)</label></div>';
 	contenu += '<button class="options-close mui-btn mui-btn-flat mui-btn-default mui-pull-left">Cancel</button><button class="options-save mui-btn mui-btn-raised mui-btn-primary mui-pull-right">Save</button>';
 	contenu += '</div></div>';
@@ -79,7 +79,7 @@ Room.prototype.saveOptions = function()
 
 	var options = {
 		dices3D: $('#options-dices-3d').prop('checked'),
-		defaultDices: $('#options-default-dices').val().split(' '),
+		defaultDices: $('#options-default-dices').val().split(','),
 		customRoll: $('#options-custom-roll').val()
 	};
 
