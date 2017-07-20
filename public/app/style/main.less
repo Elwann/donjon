@@ -157,6 +157,13 @@ body, html{
 // Room
 //
 
+button.fa{
+    background: none;
+    padding: 0;
+    border: none;
+    outline: 0;
+}
+
 header{
 	position: fixed;
 	top: 0; left: 0;
@@ -192,6 +199,10 @@ section.middle{
 		height: 100%;
 		float: left;
 	}
+}
+
+#options{
+    display: none;
 }
 
 #content{
@@ -685,11 +696,10 @@ footer{
 				display: block;
 			}
 		}
-
 	}
 }
 
-.music-selector-close{
+.popin-close{
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -782,6 +792,10 @@ footer{
 	#play{
 		display: block;
 	}
+
+    #options{
+        display: inline;
+    }
 
 	.user{
 		cursor: -webkit-grab;

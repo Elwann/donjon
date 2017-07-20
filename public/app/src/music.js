@@ -408,7 +408,7 @@ Music.prototype.init = function()
 
         $('.room-wrapper').append('<div class="music-selector overlay centerer" style="display:none;">'+
             '<div class="popin mui-panel centered">'+
-                '<i class="music-selector-close fa fa-times link"></i>'+
+                '<i class="music-selector-close popin-close fa fa-times link"></i>'+
 				'<div class="youtube-contener"></div>'+
 				'<div class="local-contener" style="position:relative;clear:both;"></div>'+
             '</div>'+
