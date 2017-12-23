@@ -309,7 +309,7 @@ Room.prototype.commandDice = function(message)
 
 	if(raw.indexOf('d') < 0)
 	{
-		return chatError(message, "Not a valid dice");
+		return chatError(message, "Not a valid die");
 	}
 
 	if(raw.indexOf(' ') !== -1){
@@ -398,7 +398,7 @@ Room.prototype.commandHelp = function(message)
 
 	msg += '@&lt;name&gt; &lt;message or command&gt;';
 	msg += '<br>';
-	msg += '/roll &lt;dice(s) to throw&gt;';
+	msg += '/roll &lt;di(c)e to throw&gt;';
 
 	if(message.user.admin){
 		msg += '<br>';
