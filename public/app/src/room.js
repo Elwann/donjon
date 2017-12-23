@@ -49,6 +49,11 @@ Room.prototype.init = function(users)
 		window.location.href = window.location.href;
 	});
 
+	this.socket.on('change settings', function(data){
+		//TODO: change settings without reloading
+		window.location.href = window.location.href;
+	});
+
 	this.socket.on('disconnect', function(){
 		that.destroy();
 		window.location.href = window.location.href;
@@ -59,9 +64,15 @@ Room.prototype.showOptions = function()
 {
 	var contenu = '<div id="options-popin" class="overlay centerer"><div class="popin mui-panel centered"><i class="options-close popin-close fa fa-times link"></i>';
 	contenu += '<div class="mui-form-group"><label for="options-dices-3d">Use 3D dice</label><input id="options-dices-3d" type="checkbox"'+((this.options.dices3D) ? ' checked' : ' ')+'></div>';
+<<<<<<< HEAD
 	contenu += '<div class="mui-form-group"><input id="options-default-dices" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.defaultDices.join(' ')+'"><label>Default dice (separated by spaces)</label></div>';
 	contenu += '<div class="mui-form-group"><input id="options-custom-roll" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.customRoll+'"><label>/dice command (custom /roll where agument are remplacing $n)</label></div>';
 	contenu += '<button class="options-close mui-btn mui-btn-flat mui-btn-default mui-pull-left">Cancel</button><button class="options-close mui-btn mui-btn-raised mui-btn-primary mui-pull-right">Save</button>';
+=======
+	contenu += '<div class="mui-form-group"><input id="options-default-dices" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.defaultDices.join(',')+'"><label>Default dice (separated by comma)</label></div>';
+	contenu += '<div class="mui-form-group"><input id="options-custom-roll" class="mui-form-control mui-empty mui-dirty" type="text" value="'+this.options.customRoll+'"><label>/dice command (custom /roll where agument are remplacing $n)</label></div>';
+	contenu += '<button class="options-close mui-btn mui-btn-flat mui-btn-default mui-pull-left">Cancel</button><button class="options-save mui-btn mui-btn-raised mui-btn-primary mui-pull-right">Save</button>';
+>>>>>>> 5fa72a5fc2f18b08cdee9cfeff3e5b6da2899e70
 	contenu += '</div></div>';
 	$('body').append(contenu);
 	this.optionsOpened = true;
@@ -72,11 +83,21 @@ Room.prototype.saveOptions = function()
 	if(!this.user.admin)
 		return;
 
+<<<<<<< HEAD
 	this.options.dices3D = $('#options-default-dices').prop('checked');
 
 	console.log(this.options);
 
 	this.socket.emit('save options', this.options);
+=======
+	var options = {
+		dices3D: $('#options-dices-3d').prop('checked'),
+		defaultDices: $('#options-default-dices').val().split(','),
+		customRoll: $('#options-custom-roll').val()
+	};
+
+	this.socket.emit('save settings', options);
+>>>>>>> 5fa72a5fc2f18b08cdee9cfeff3e5b6da2899e70
 	this.closeOptions();
 };
 
@@ -91,7 +112,9 @@ Room.prototype.closeOptions = function()
 
 Room.prototype.destroy = function()
 {
-	$("body").removeClass('admin-layout');
+	$("body")
+		.removeClass('admin-layout')
+		.off(".room");
 	this.$roomName.text("");
 	this.$logout.off(".room");
 	this.$options.off(".room");

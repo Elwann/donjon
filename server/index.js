@@ -45,7 +45,7 @@ function Room(name, admin)
 	this.settings = {
 		dices3D: true,
 		defaultDices: ['d100', 'd20', 'd12', 'd10', 'd8', 'd6', 'd4'],
-		customRoll: 'nd6 4'
+		customRoll: '$1d6 5'
 	};
 
 	if(this.settings.dices3D)
@@ -189,7 +189,7 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 			message["command"] = command;
 			if(this.settings.dices3D)
 			{
-				if(command == '/roll')
+				if(command == '/roll' || command == '/dice')
 				{
 					var d = that.diceArray(message.dice);
 					var exist = false;
@@ -204,10 +204,10 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 							to,
 							d,
 							colors[Math.floor(colors.length * Math.random())],
-							function(to, room, data){ that.diceStart(to, room, data, user); },
-							function(to, room, data){ that.diceUpdate(to, room, data, user); },
-							function(to, room, user, data){ that.diceResult(to, room, user, data, receiver, message.dice); },
-							function(to, room, data){ that.diceEnd(to, room, data, user); }
+							function(to, room, data){ that.rollStart(to, room, data, user); },
+							function(to, room, data){ that.rollUpdate(to, room, data, user); },
+							function(to, room, user, data){ that.rollResult(to, room, user, data, receiver, message.dice); },
+							function(to, room, data){ that.rollEnd(to, room, data, user); }
 						))
 						{
 							socket.emit('chat', chatError(message, "Come on, you can't handle so many dices in your hand"));
@@ -240,7 +240,17 @@ Room.prototype.parseMessage = function(user, socket, id, msg, action)
 	}
 }
 
-Room.prototype.diceStart = function(to, room, data, user)
+Room.prototype.commandDice = function(data)
+{
+	var split = data.message.split(' ');
+	var msg = this.settings.customRoll;
+	for(var i = 0, l = split.length; i<l; i++)
+		msg = msg.replace('$' + (i+1), split[i]);
+	data.message = msg;
+	return this.commandRoll(data);
+};
+
+Room.prototype.rollStart = function(to, room, data, user)
 {
 	if(to == room) {
 		io.to(to).emit('dice start', data);
@@ -251,7 +261,7 @@ Room.prototype.diceStart = function(to, room, data, user)
 	}
 };
 
-Room.prototype.diceUpdate = function(to, room, data, user)
+Room.prototype.rollUpdate = function(to, room, data, user)
 {
 	if(to == room) {
 		io.to(to).emit('dice update', data);
@@ -262,7 +272,7 @@ Room.prototype.diceUpdate = function(to, room, data, user)
 	}
 };
 
-Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
+Room.prototype.rollResult = function(to, room, user, data, receiver, raw)
 {
 	var message = {
 		id: messageid++,
@@ -290,7 +300,7 @@ Room.prototype.diceResult = function(to, room, user, data, receiver, raw)
 	}
 };
 
-Room.prototype.diceEnd = function(to, room, data, user)
+Room.prototype.rollEnd = function(to, room, data, user)
 {
 	if(to == room) {
 		io.to(to).emit('dice end', data);
@@ -301,7 +311,7 @@ Room.prototype.diceEnd = function(to, room, data, user)
 	}
 };
 
-Room.prototype.commandDice = function(message)
+Room.prototype.commandRoll = function(message)
 {
 	var seuil = null;
 	var raw = message.message;
@@ -437,7 +447,8 @@ Room.prototype.execCommand = function(user, command, message)
 
 	switch(command){
 		case "/help": return this.commandHelp(message); break;
-		case "/roll": return this.commandDice(message); break;
+		case "/dice": return this.commandDice(message); break;
+		case "/roll": return this.commandRoll(message); break;
 		case "/token": return this.commandToken(user, message); break;
 		default: return chatError(message, "Unknown command");
 	}
@@ -472,6 +483,17 @@ io.on('connection', function(socket)
 
 	var user;
 	var room;
+
+	//
+	// Gestion des settings
+	//
+	socket.on('save settings', function(data){
+		if(!room)
+			return;
+
+		for(var i in data) rooms[room].settings[i] = data[i];
+		io.to(room).emit('change settings', rooms[room].settings);
+	});
 
 	//
 	// Gestion du chat
