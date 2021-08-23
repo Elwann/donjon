@@ -56,7 +56,7 @@ gulp.task('watch', function() {
 		}
 	});
 
-	gulp.watch(root+'app/style/*.less', ['less']);
-	gulp.watch([root+'app/src/*.js'], ['scripts']);
+	gulp.watch(root+'app/style/*.less', gulp.series('less'));
+	gulp.watch([root+'app/src/*.js'], gulp.series('scripts'));
 	gulp.watch(['*.html']).on('change', browserSync.reload);
 });
